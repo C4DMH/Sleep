@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="wake_time">
+        <item>Before 6am</item>
+        <item>6am - 7am</item>
+        <item>7am - 8am</item>
+        <item>8am -9am</item>
+        <item>9am - 10am</item>
+        <item>After 10am</item>
+
+    </string-array>
+
+    <string-array name="sleep_time">
+        <item>Before 9pm</item>
+        <item>9pm-10pm</item>
+        <item>10pm - 11pm</item>
+        <item>11pm - 12pm</item>
+        <item>12pm - 1am</item>
+        <item>After 1am</item>
+
+    </string-array>
+
+
+</resources>
