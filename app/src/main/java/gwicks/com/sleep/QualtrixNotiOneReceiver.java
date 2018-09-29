@@ -19,6 +19,9 @@ import java.util.Calendar;
 
 /**
  * Created by gwicks on 24/09/2018.
+ *
+ * Weekday Qualtrix notification link, link will change depending on whether or not the nudges have started
+ * as shown by the boolean (started)
  */
 
 public class QualtrixNotiOneReceiver extends BroadcastReceiver {
@@ -36,9 +39,6 @@ public class QualtrixNotiOneReceiver extends BroadcastReceiver {
     public static String firstHeader = "Qualtrix Survey One";
     public static String secondHeader = "Qualtrix Survey Two";
 
-
-
-
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -49,7 +49,7 @@ public class QualtrixNotiOneReceiver extends BroadcastReceiver {
         int dow = cal.get(Calendar.DAY_OF_WEEK);
 
         SharedPreferences mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-        boolean started = mSharedPreferences.getBoolean("NudgesStarted", false);
+        boolean started = mSharedPreferences.getBoolean("NudgesStarted", false); // Have the nudges started, if so change link
 
         if(started){
             qualtrixURL = secondQualtrixLink;
@@ -59,21 +59,15 @@ public class QualtrixNotiOneReceiver extends BroadcastReceiver {
             header = firstHeader;
         }
 
-
-
-
         if(!isWeekday(dow)){
             Log.d(TAG, "onReceive: weekend!!");
             return;
         }
 
-
-
         if(mNotificationManager == null){
             Log.d(TAG, "onReceive: in notification manager = null");
             mNotificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE) ;
             Log.d(TAG, "onReceive: notificiation manager  = " + mNotificationManager);
-
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -86,7 +80,6 @@ public class QualtrixNotiOneReceiver extends BroadcastReceiver {
                 mChannel.enableVibration(true);
                 mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
                 mNotificationManager.createNotificationChannel(mChannel);
-
             }
         }
 
@@ -108,15 +101,9 @@ public class QualtrixNotiOneReceiver extends BroadcastReceiver {
 
         mNotificationManager.notify("first",1, mBuilder);
         Log.d(TAG, "onReceive OREO: should be notification built now");
-
-
-
-
     }
 
-
     public boolean isWeekday(int dayOfWeek){
-
         return ((dayOfWeek >= Calendar.MONDAY) && dayOfWeek <= Calendar.FRIDAY);
     }
 }

@@ -12,6 +12,13 @@ import android.widget.Spinner;
 
 import java.util.Date;
 
+/**
+ * Created by gwicks on 20/09/2018.
+ *
+ * First / Launcher activity. takes input from user as to their weekday and weekend wake
+ * and sleep times, stores in shared preferences.
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     Spinner morningSpinnerWeek;

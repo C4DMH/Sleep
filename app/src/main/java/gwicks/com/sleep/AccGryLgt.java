@@ -13,7 +13,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
-import android.os.Environment;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
@@ -22,13 +21,12 @@ import android.util.Log;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
 /**
  * Created by gwicks on 9/07/2018.
+ * This is a service that starts recording the Accelertomter, Gyroscope and Light Sensor
  */
 
 public class AccGryLgt extends Service implements SensorEventListener {
@@ -44,18 +42,19 @@ public class AccGryLgt extends Service implements SensorEventListener {
 
 
 
-    private static long LAST_TS_ACC = 0;
+    private static long LAST_TS_ACC = 0; // Time stamps to prevent too many readings
     private static long LAST_TS_GYRO = 0;
     private static long LAST_SAVE = 0;
 
     private static PowerManager.WakeLock wakeLock = null;
 
 
-
+    // Buffers to prevent too many writes to file
     StringBuilder accelBuffer;
     StringBuilder gryoBuffer;
     StringBuilder lightBuffer;
 
+    // Boolean which prevents the file from being accessed etc while a write is going on
     private boolean writingAccelToFile = false;
     private boolean writingGyroToFile = false;
     private boolean writingLightToFile = false;
@@ -65,6 +64,8 @@ public class AccGryLgt extends Service implements SensorEventListener {
     private static Float[] LAST_VALUES_ACC = null;
     private static Float[] LAST_VALUES_GRYO = null;
 
+
+    // Thresholds to prevent too many values being written ( ie a filter for small changes)
     double THRESHOLD = 0.01;
     double ACCEL_THRESHOLD = 0.05;
 
@@ -132,7 +133,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
         }
 
 
-
+        // Since Oreo the service must be run as a foreground services with a notification, hence:
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             Log.d(TAG, "onStartCommand: bigger than O");
@@ -201,18 +202,18 @@ public class AccGryLgt extends Service implements SensorEventListener {
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AccGryLgt - Service");
        // wakeLock.acquire(10000000);
 
-        path = Environment.getExternalStorageDirectory() +"/VIDEODIARY";
+        //path = Environment.getExternalStorageDirectory() +"/VIDEODIARY";
         path2 = (getExternalFilesDir(null) + "/Sensors");
         Log.d(TAG, "AccGryLgt:  the path to externalfilesdir is: " + path2);
 
 
-        File directory = new File(path);
+        //File directory = new File(path);
         File directory2 = new File(path2);
 
-        if(!directory.exists()){
-            Log.d(TAG, "onCreate: making directory");
-            directory.mkdir();
-        }
+//        if(!directory.exists()){
+//            Log.d(TAG, "onCreate: making directory");
+//            directory.mkdir();
+//        }
 
         if(!directory2.exists()){
             Log.d(TAG, "onCreate: making directory");
@@ -235,18 +236,21 @@ public class AccGryLgt extends Service implements SensorEventListener {
 
     }
 
-    public void stopLogging(){
-        Log.d(TAG, "stopLogging: ");
-        sensorManager.unregisterListener(this);
-        wakeLock.release();
-        super.onDestroy();
-
-
-    }
+//    public void stopLogging(){
+//        Log.d(TAG, "stopLogging: ");
+//        sensorManager.unregisterListener(this);
+//        wakeLock.release();
+//        super.onDestroy();
+//
+//
+//    }
 
 
     @Override
     public void onDestroy() {
+
+        // Write anything in the buffer to file, unregister the listeners, and cancel the wakelock
+
         Log.d(TAG, "onDestroy: the sensor service has been destroyed");
         writeAccBufferToFile();
         writeGryoBufferToFile();
@@ -274,6 +278,8 @@ public class AccGryLgt extends Service implements SensorEventListener {
                 //Log.d(TAG, "onSensorChanged: skipping");
                 return;
             }
+
+            // Filter to remove small changes
 
             if(LAST_VALUES_ACC != null && Math.abs(event.values[0] - LAST_VALUES_ACC[0]) < ACCEL_THRESHOLD
                     && Math.abs(event.values[1] - LAST_VALUES_ACC[1]) < ACCEL_THRESHOLD
@@ -394,7 +400,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
             }
 
 
-            if((lightBuffer.length() > 5000) && (writingLightToFile == false) ){
+            if((lightBuffer.length() > 50000) && (writingLightToFile == false) ){
 
                 timeStampLight = System.currentTimeMillis();
                 LightFile = new File(path2 +"/Light/"  + timeStampLight +"_Service.txt");
@@ -447,35 +453,8 @@ public class AccGryLgt extends Service implements SensorEventListener {
         }
     }
 
-    private static void writeToFile(File file, String data) {
 
-        FileOutputStream stream = null;
-        System.out.println("The state of the media is: " + Environment.getExternalStorageState());
-        Log.d(TAG, "writeToFile: file location is:" + file.getAbsolutePath());
-
-        //OutputStreamWriter stream = new OutputStreamWriter(openFileOutput(file), Context.MODE_APPEND);
-        try {
-            Log.e("History", "In try");
-            Log.d(TAG, "writeToFile: ");
-            stream = new FileOutputStream(file, true);
-            Log.d(TAG, "writeToFile: 2");
-            stream.write(data.getBytes());
-            Log.d(TAG, "writeToFile: 3");
-        } catch (FileNotFoundException e) {
-            Log.e("History", "In catch");
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            stream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }catch(NullPointerException e){
-            e.printStackTrace();
-        }
-
-    }
+    // Write what is left in buffer to file before onDestroy called.
 
     public void writeAccBufferToFile(){
 

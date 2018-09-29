@@ -20,38 +20,26 @@ import java.util.Date;
 
 /**
  * Created by gwicks on 20/09/2018.
+ *
+ * This receiver is where the logic for when the nudge will arrive is done
  */
 
 public class DecisionPointAlarmReceiver extends BroadcastReceiver {
 
     private static final String TAG = "DecisionPointAlarmRecei";
-
-
     File nudgetext;
-
     Context mContext;
-
     private PendingIntent notificationIntent;
-
-    //private SharedPreferences mSharedPreferences;
-
-
-
-
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
         int sleepTime;
         int sleepActualTime = 21;
-
         mContext = context;
         int alarmTime;
 
-
-
         SharedPreferences mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-
 
         long timeSinceInstall = mSharedPreferences.getLong("InstallTime", 0);
         Date date = new Date(System.currentTimeMillis());
@@ -60,11 +48,7 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
 
         Log.d(TAG, "buttonClick: current time is: " + millis);
 
-        //TODO what is this? Is this for the education link? OK it's because nudges dont start for 7 days
-
-//        if(millis - timeSinceInstall < 604800 ){
-//            return;
-//        }
+        //what is this? Is this for the education link? OK it's because nudges dont start for 7 days
 
         // OK time in Millis is dah, in milliseconds, need to add 1000
 
@@ -90,10 +74,6 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
         }
 
 
-
-        //morningWeek = prefs.getString("mW", null);
-        //sleepTime = mSharedPreferences.getInt("int", 0);
-
         if(sleepTime == 0){
             sleepActualTime = 20;
         }else if(sleepTime == 1){
@@ -107,12 +87,6 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
         }else if(sleepTime == 5){
             sleepActualTime = 1;
         }
-        //morningWeekend = prefs.getString("mWE", null);
-        //nightWeekend = prefs.getString("nWE", null);
-
-        Log.d(TAG, "onReceive: Sleep time is: " + sleepTime);
-
-        mContext = context;
 
         String path2 = (context.getExternalFilesDir(null) + "/Sensors/Nudges/");
         File directory = new File(path2);
@@ -126,27 +100,14 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
 
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd");
-//        Date now = new Date();
-//        String fileName = formatter.format(now) + ".txt";
+
         String currentDate = formatter.format(new Date());
         Log.d(TAG, "onReceive: the current date is: " + currentDate);
 
         int delay;
 
 
-//        if(Math.random() < 0.5){
-//            Log.d(TAG, "onReceive: delay < 0.5");
-//            writeToFile(nudgetext, " 1 hour");
-//            delay = 1;// * 60 *60 *1000; // delay 1 hour
-//            alarmTime = sleepActualTime -1;
-//        }else{
-//            Log.d(TAG, "onReceive: delay > 0.5");
-//            delay = 4;// * 60 * 60 * 1000; //delay for hours
-//            writeToFile(nudgetext, "4 hour");
-//            alarmTime = sleepActualTime - 4;
-//        }
-
-        if(Math.random() < 0.1){
+        if(Math.random() < 0.1){ // No nudge given
             Log.d(TAG, "onReceive: skipping the nudge");
             writeToFile(nudgetext,currentDate + ", No Nudge given on this date\n" );
 
@@ -162,7 +123,7 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
                 Log.d(TAG, "onReceive: alarm time is: " + alarmTime + " and actual sleep time is: " + sleepActualTime + " because sleeptime variable is: " + sleepTime);
             }else{
                 Log.d(TAG, "onReceive: delay > 0.5");
-                delay = 4;// * 60 * 60 * 1000; //delay for hours
+                delay = 4;// * 60 * 60 * 1000; //delay 4 hours
                 writeToFile(nudgetext, currentDate + ", 4 hour,");
                 alarmTime = sleepActualTime - 4;
                 Log.d(TAG, "onReceive: alarm time is: " + alarmTime + " and actual sleep time is: " + sleepActualTime + " because sleeptime variable is: " + sleepTime);
@@ -172,39 +133,6 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
 
 
         }
-
-        // Randomise the time of the notification for either 1 hour or 4 hours before bedtime.
-
-
-//        if(Math.random() < 0.5){
-//            Log.d(TAG, "onReceive: delay < 0.5");
-//            writeToFile(nudgetext, " 1 hour");
-//            delay = 1;// * 60 *60 *1000; // delay 1 hour
-//            alarmTime = sleepActualTime -1;
-//        }else{
-//            Log.d(TAG, "onReceive: delay > 0.5");
-//            delay = 4;// * 60 * 60 * 1000; //delay for hours
-//            writeToFile(nudgetext, "4 hour");
-//            alarmTime = sleepActualTime - 4;
-//        }
-
-//        String nudge = "";
-//
-//        if(Math.random() < 0.5){
-//            Log.d(TAG, "onReceive: nudge < 0.5");
-//            nudge = " This is nudge 1";
-//        }else{
-//            Log.d(TAG, "onReceive: nudge > 0.5");
-//            nudge = "This is nudge 2";
-//        }
-
-
-
-
-
-
-
-
     }
 
 

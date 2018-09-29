@@ -6,6 +6,8 @@ import android.content.Intent;
 
 /**
  * Created by gwicks on 1/08/2018.
+ *
+ * Restart the app on phone reboot
  */
 
 

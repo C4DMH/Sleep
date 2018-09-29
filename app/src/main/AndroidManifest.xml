@@ -42,17 +42,17 @@
             </intent-filter>
         </receiver>
 
-        <receiver
-            android:name=".FinishScreen$StopServiceReceiver"
-            android:enabled="true"
-            android:process=":remote" />
+        <!--<receiver-->
+            <!--android:name=".FinishScreen$StopServiceReceiver"-->
+            <!--android:enabled="true"-->
+            <!--android:process=":remote" />-->
 
         <receiver android:name=".SensorUploadReceiver"/>
 
         <receiver android:name=".DecisionPointAlarmReceiver"/>
         <receiver android:name=".NotificationAlarmReceiver"/>
         <receiver android:name=".EducationNotificationReceiver"/>
-        <!--<receiver android:name=".QualtrixNotiTwoReceiver"/>-->
+        <receiver android:name=".QualtrixNotiTwoReceiver"/>
         <receiver android:name=".QualtrixNotiOneReceiver"/>
         <receiver android:name=".StartLogging"/>
         <receiver android:name=".StopLogging"/>

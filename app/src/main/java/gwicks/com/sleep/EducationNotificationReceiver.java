@@ -19,6 +19,8 @@ import java.util.Date;
 
 /**
  * Created by gwicks on 24/09/2018.
+ *
+ * One off alarm to send a link to the Education thingamajig
  */
 
 public class EducationNotificationReceiver extends BroadcastReceiver {
@@ -60,6 +62,7 @@ public class EducationNotificationReceiver extends BroadcastReceiver {
 //
 //        //TODO what is this? Is this for the education link? OK it's because nudges dont start for 7 days
 //        //TODO, but I should not need it, because of the calculate eduday method in finishinstallscreen
+        //TODO it fires only once, so do the logic on install!!
 //
 //        if(millis - timeSinceInstall < 200000 ){
 //            Log.d(TAG, "onReceive: not yet time for the edu link, skipping");
@@ -104,13 +107,6 @@ public class EducationNotificationReceiver extends BroadcastReceiver {
 
         mNotificationManager.notify("first",1, mBuilder);
         Log.d(TAG, "onReceive OREO: should be notification built now");
-
-//        SharedPreferences.Editor editor = mSharedPreferences.edit();
-//
-//
-//        editor.putBoolean("EduDone", true);
-//
-
 
     }
 }

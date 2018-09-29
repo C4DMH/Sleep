@@ -37,8 +37,6 @@ public class QualtrixNotiTwoReceiver extends BroadcastReceiver {
     public static String secondHeader = "Qualtrix Survey Two";
 
 
-
-
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -81,7 +79,6 @@ public class QualtrixNotiTwoReceiver extends BroadcastReceiver {
                 mChannel.enableVibration(true);
                 mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
                 mNotificationManager.createNotificationChannel(mChannel);
-
             }
         }
 
@@ -100,18 +97,11 @@ public class QualtrixNotiTwoReceiver extends BroadcastReceiver {
                         .setContentIntent(pendingIntent)
                         .build();
 
-
         mNotificationManager.notify("first",1, mBuilder);
         Log.d(TAG, "onReceive OREO: should be notification built now");
-
-
-
-
     }
 
-
     public boolean isWeekday(int dayOfWeek){
-
         return ((dayOfWeek >= Calendar.MONDAY) && dayOfWeek <= Calendar.FRIDAY);
     }
 }

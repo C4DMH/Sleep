@@ -8,6 +8,8 @@ import android.util.Log;
 
 /**
  * Created by gwicks on 28/09/2018.
+ *
+ * Start the sensor service
  */
 
 public class StartLogging extends BroadcastReceiver {
@@ -17,6 +19,8 @@ public class StartLogging extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive: ");
 
+        // sleep for 5 seconds to ensure on install that start logging is called after stopping logging. Should only
+        // make a difference on the first day of the study, immediately after install
         try {
 
             //sleep 5 seconds
@@ -28,12 +32,7 @@ public class StartLogging extends BroadcastReceiver {
             e.printStackTrace();
         }
 
-//        Handler handler = new Handler();
-//        handler.postDelayed(new Runnable() {
-//            public void run() {
-//
-//            }
-//        }, 6000);
+        // foreground service is phone is oreo or later
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
 

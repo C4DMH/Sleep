@@ -16,6 +16,12 @@ import android.util.Log;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+/**
+ * Created by gwicks on 20/09/2018.
+ *
+ * The final activity. A shit load of logic is done here, all the alarms are set etc
+ */
+
 public class FinishScreen extends AppCompatActivity {
 
     private static final String TAG = "FinishScreen";
@@ -227,9 +233,9 @@ public class FinishScreen extends AppCompatActivity {
         Log.d("the time is: ", when + " ");
 
         cal.setTimeInMillis(System.currentTimeMillis());
-        cal.set(Calendar.HOUR_OF_DAY, 00);
-        cal.set(Calendar.MINUTE, 1);
-        cal.set(Calendar.SECOND,00);
+        cal.set(Calendar.HOUR_OF_DAY, 20);
+        cal.set(Calendar.MINUTE, 30);
+        cal.set(Calendar.SECOND, 00);
 
         AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, StartLogging.class);

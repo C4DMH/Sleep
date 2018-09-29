@@ -27,6 +27,8 @@ import java.util.UUID;
 
 /**
  * Created by gwicks on 9/07/2018.
+ *
+ * AWS util class, copied and pasted a lot from Amazon docs, so probably hopelessly broken and riddled with bugs
  */
 
 public class Util {
@@ -246,6 +248,7 @@ public class Util {
 
                         long unixTime = System.currentTimeMillis() / 1000L;
                         String desination = context.getExternalFilesDir(null) + "/videoDIARY/buffered_" + unixTime + ".log";
+                        Log.d(TAG, "onStateChanged: the destination is: " + desination);
 
 
                         File destination = new File(desination);

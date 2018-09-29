@@ -23,6 +23,9 @@ import javax.crypto.NoSuchPaddingException;
 
 /**
  * Created by gwicks on 9/07/2018.
+ *
+ * Upload all the sensor data, currently set for just before 11am, after the sensor service should have been stopped,
+ * and all data written to file
  */
 
 public class SensorUploadReceiver extends BroadcastReceiver {
@@ -50,37 +53,6 @@ public class SensorUploadReceiver extends BroadcastReceiver {
         SensorUpload("Light/");
         SensorUpload("CHARGING/");
         SensorUpload("Nudges/");
-
-//        Calendar c = Calendar.getInstance();
-//
-//        SimpleDateFormat df = new SimpleDateFormat("ddMMyyyy_HHmmssSSS");
-//        String formattedDate = df.format(c.getTime());
-//
-//        String path = mContext.getExternalFilesDir(null) + "/Sensors/";
-//
-//        File directory = new File(path);
-//
-//        if(!directory.exists()){
-//            directory.mkdirs();
-//        }
-//
-//        ArrayList<File> files = new ArrayList<>(Arrays.asList(directory.listFiles()));
-//        int i = 1;
-//        for(File each : files){
-//
-//            Log.d(TAG, "onReceive: path = " + each.getAbsolutePath());
-//            Encrypt(formattedDate + "_" + i, each.getAbsolutePath());
-//            i = i + 1;
-//            Log.d(TAG, "onReceive: i is: " + i);
-//            try{
-//                each.delete();
-//            }catch (Exception e){
-//                Log.d(TAG, "onReceive: error deleting: " + e);
-//            }
-//        }
-//        ArrayList<File> encryptedFiles = new ArrayList<>(Arrays.asList(directory.listFiles()));
-//        Util.uploadFilesToBucket(encryptedFiles, true,logUploadCallback, mContext, folder);
-
     }
 
     public void SensorUpload(String sensor){

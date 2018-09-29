@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
-import android.text.format.DateFormat;
 import android.util.Log;
 
 import java.io.File;
@@ -16,6 +15,8 @@ import java.util.Calendar;
 
 /**
  * Created by gwicks on 9/07/2018.
+ *
+ * Basic class to capture power plugged and un-plugged events and record to text file
  */
 public class PowerConnectionReceiver extends BroadcastReceiver {
 
@@ -49,26 +50,18 @@ public class PowerConnectionReceiver extends BroadcastReceiver {
 
         if(action.equals(Intent.ACTION_POWER_CONNECTED)) {
             // Do something when power connected
-            //Toast.makeText(context, "CONNECTED", Toast.LENGTH_LONG).show();
             writeToFile(location, "TIME," + theTime + ",CHARGING STATUS, Charging\n");
         }
         else if(action.equals(Intent.ACTION_POWER_DISCONNECTED)) {
             // Do something when power disconnected
-            //Toast.makeText(context, "Diconnected", Toast.LENGTH_LONG).show();
             writeToFile(location, "TIME," + theTime + ",CHARGING STATUS, Disconnected\n");
 
         }
     }
 
-
-    public static String convertDate(String dateInMilliseconds, String dateFormat) {
-        return DateFormat.format(dateFormat, Long.parseLong(dateInMilliseconds)).toString();
-    }
-
     private static void writeToFile(File file, String data) {
 
         FileOutputStream stream = null;
-        System.out.println("The state of the media is: " + Environment.getExternalStorageState());
         Log.d(TAG, "writeToFile: file location is:" + file.getAbsolutePath());
 
         //OutputStreamWriter stream = new OutputStreamWriter(openFileOutput(file), Context.MODE_APPEND);

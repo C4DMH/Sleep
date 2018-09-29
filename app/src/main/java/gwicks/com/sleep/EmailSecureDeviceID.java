@@ -46,33 +46,11 @@ public class EmailSecureDeviceID extends DialogFragment {
     }
 
     public void sendEmailDeviceID() {
-        String[] recipient = new String[]{"klmills@uoregon.edu"};
 
-
-        // Pitsburg medical center:
-
-//        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-//                "mailto","lubbertcl@upmc.edu", null));
-//        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {"zelaznyjh@upmc.edu"});
-//        emailIntent.putExtra(Intent.EXTRA_SUBJECT, secureDeviceID);
-//        emailIntent.putExtra(Intent.EXTRA_TEXT, "No Need to put anything here, just press send :)");
-//        startActivity(Intent.createChooser(emailIntent, "Select your most used email provider"));
-
-
-        // Randy at Columbia
-
-//        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-//                "mailto","Randy.Auerbach@nyspi.columbia.edu", null));
-//        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {"kira.alqueza@nyspi.columbia.edu"});
-//        emailIntent.putExtra(Intent.EXTRA_SUBJECT, secureDeviceID);
-//        emailIntent.putExtra(Intent.EXTRA_TEXT, "No Need to put anything here, just press send :)");
-//        startActivity(Intent.createChooser(emailIntent, "Select your most used email provider"));
-
-
-        // Me for testing
+        // Send the Secure Device ID to whomever is running the study
 
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                "mailto", "geordiewicks@gmail.com", null));
+                "mailto", "mrt4sleep@protonmail.com", null));
         //emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {"zelaznyjh@upmc.edu"});
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, secureDeviceID);
         emailIntent.putExtra(Intent.EXTRA_TEXT, "No Need to put anything here, just press send :)");
