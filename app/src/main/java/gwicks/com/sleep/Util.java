@@ -70,7 +70,9 @@ public class Util {
 
     private static void initUserId() {
         if (TextUtils.isEmpty(userId)) {
-           // userId = FinishInstallScreen.secureID;
+           userId = FinishScreen.secureID;
+
+            Log.d(TAG, "initUserId: secure id is: " +userId);
 //            userId = Settings.Secure.getString(
             //what? is this?
 //                    AnyApplication.getInstance().getContentResolver(), Settings.Secure.ANDROID_ID);

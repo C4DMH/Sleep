@@ -5,10 +5,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
+
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,12 +21,24 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences prefs;
 
+    private static final String TAG = "MainActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean startedBefore = prefs.getBoolean("Finish",false);
+        Log.d(TAG, "onCreate: started before : " + startedBefore);
+        if(startedBefore){
+            Log.d(TAG, "onCreate: skipping");
+            Intent finishIntent = new Intent(MainActivity.this, FinishScreen.class);
+            MainActivity.this.startActivity(finishIntent);
+
+        }
+
+        Log.d(TAG, "onCreate: ");
 
 
 
@@ -64,26 +78,40 @@ public class MainActivity extends AppCompatActivity {
 
     public void buttonClick(View view){
 
+        Date date = new Date(System.currentTimeMillis());
+        long millis = date.getTime();
+
+        Log.d(TAG, "buttonClick: current time is: " + millis);
+
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = prefs.edit();
 
 
-
+        editor.putBoolean("NudgesStarted", false);
+        editor.putLong("InstallTime", millis);
 
 
         String morningWeek = morningSpinnerWeek.getSelectedItem().toString();
+        int morningWeekInt = morningSpinnerWeek.getSelectedItemPosition();
         String nightWeek = nightSpinnerWeek.getSelectedItem().toString();
+        int nightWeekInt = nightSpinnerWeek.getSelectedItemPosition();
         String morningWeekend = morningSpinnerWeekend.getSelectedItem().toString();
+        int morningWeekendInt = morningSpinnerWeekend.getSelectedItemPosition();
         String nightWeekend = nightSpinnerWeekend.getSelectedItem().toString();
+        int nightWeekendInt = nightSpinnerWeekend.getSelectedItemPosition();
 
         editor.putString("mW", morningWeek);
+        editor.putInt("mWInt", morningWeekInt);
         editor.putString("nW", nightWeek );
+        editor.putInt("nWInt", nightWeekInt);
         editor.putString("mWE", morningWeekend);
+        editor.putInt("mWEInt", morningWeekendInt);
         editor.putString("nWE", nightWeekend);
+        editor.putInt("nWEInt", nightWeekendInt);
 
         editor.apply();
 
-        Toast.makeText(this, "The value is: " + morningWeek,Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "The value is: " + morningWeek,Toast.LENGTH_LONG).show();
 
         Intent finishIntent = new Intent(MainActivity.this, FinishScreen.class);
         MainActivity.this.startActivity(finishIntent);

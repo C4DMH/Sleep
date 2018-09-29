@@ -34,9 +34,12 @@ public class SensorUploadReceiver extends BroadcastReceiver {
     Context mContext;
     String encryptedPath;
     static String folder = "/Sensors/";
+    //static String folder2 = "/Nudges/";
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        Log.d(TAG, "onReceive: in upload");
 
         mContext = context;
         mEncryption = new Encryption(mContext);
@@ -46,6 +49,7 @@ public class SensorUploadReceiver extends BroadcastReceiver {
         SensorUpload("Gyro/");
         SensorUpload("Light/");
         SensorUpload("CHARGING/");
+        SensorUpload("Nudges/");
 
 //        Calendar c = Calendar.getInstance();
 //

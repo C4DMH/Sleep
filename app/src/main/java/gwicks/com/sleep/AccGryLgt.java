@@ -1,16 +1,23 @@
 package gwicks.com.sleep;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.io.BufferedWriter;
@@ -72,11 +79,110 @@ public class AccGryLgt extends Service implements SensorEventListener {
     File LightFile;
     File DestroyFile;
 
+    private NotificationManager mNotificationManager;
+    String CHANNEL_DI = "Blah";
 
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        Log.d(TAG, "onTaskRemoved: ");
+        super.onTaskRemoved(rootIntent);
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.d(TAG, "onUnbind: ");
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public boolean stopService(Intent name) {
+        Log.d(TAG, "stopService: ");
+        return super.stopService(name);
+    }
+
+    @Override
+    public void unbindService(ServiceConnection conn) {
+        Log.d(TAG, "unbindService: ");
+        super.unbindService(conn);
+    }
+
+    @Override
+    public void unregisterReceiver(BroadcastReceiver receiver) {
+        Log.d(TAG, "unregisterReceiver: ");
+        super.unregisterReceiver(receiver);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        Log.d(TAG, "onStartCommand: ");
+
+        sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mGyroscope =  sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        mLight = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        //return super.onStartCommand(intent, flags, startId);
+        wakeLock.acquire();
+
+        if(mNotificationManager == null){
+            Log.d(TAG, "onReceive: in notification manager = null");
+            mNotificationManager = (NotificationManager)this.getSystemService(Context.NOTIFICATION_SERVICE) ;
+            Log.d(TAG, "onReceive: notificiation manager  = " + mNotificationManager);
+
+        }
+
+
+
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            Log.d(TAG, "onStartCommand: bigger than O");
+            NotificationChannel channel = mNotificationManager.getNotificationChannel(CHANNEL_DI);
+            if(channel == null){
+                channel = new NotificationChannel(CHANNEL_DI, "Oreo", NotificationManager.IMPORTANCE_MIN);
+
+                channel.enableVibration(true);
+                channel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+                mNotificationManager.createNotificationChannel(channel);
+            }
+
+            Notification mBuilder =
+                    new NotificationCompat.Builder(this, CHANNEL_DI)
+                            .setSmallIcon(R.drawable.not_icon_clear)
+                            .setAutoCancel(true)
+                            .setContentText("Sleep app is running")
+                            .setOngoing(false)
+                            .setChannelId(CHANNEL_DI)
+                            .setPriority(Notification.PRIORITY_MIN)
+                            .build();
+            //mNotificationManager.notify("first",1, mBuilder);
+            Log.d(TAG, "onStartCommand: notification should be built");
+            startForeground(1, mBuilder);
+        }
+
+
+
+        List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
+        for (Sensor sensor : sensors) {
+            Log.d("Sensors", "" + sensor.getName());
+        }
+
+        accelBuffer = new StringBuilder();
+        gryoBuffer = new StringBuilder();
+        lightBuffer = new StringBuilder();
+
+        sensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        //sensorManager.registerListener(this, head, SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
+
+
+        return START_STICKY;
+    }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind: what is this?");
         return null;
     }
 
@@ -86,14 +192,14 @@ public class AccGryLgt extends Service implements SensorEventListener {
 
         Log.d(TAG, "AccelGyroLight: starting accelgyrolight constructor");
 
-        sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-        mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mGyroscope =  sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        mLight = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+//        sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+//        mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+//        mGyroscope =  sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+//        mLight = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
 
         PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AccGryLgt - Service");
-        wakeLock.acquire();
+       // wakeLock.acquire(10000000);
 
         path = Environment.getExternalStorageDirectory() +"/VIDEODIARY";
         path2 = (getExternalFilesDir(null) + "/Sensors");
@@ -113,19 +219,19 @@ public class AccGryLgt extends Service implements SensorEventListener {
             directory2.mkdir();
         }
 
-        List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
-        for (Sensor sensor : sensors) {
-            Log.d("Sensors", "" + sensor.getName());
-        }
-
-        accelBuffer = new StringBuilder();
-        gryoBuffer = new StringBuilder();
-        lightBuffer = new StringBuilder();
-
-        sensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        //sensorManager.registerListener(this, head, SensorManager.SENSOR_DELAY_GAME);
-        sensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
+//        List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
+//        for (Sensor sensor : sensors) {
+//            Log.d("Sensors", "" + sensor.getName());
+//        }
+//
+//        accelBuffer = new StringBuilder();
+//        gryoBuffer = new StringBuilder();
+//        lightBuffer = new StringBuilder();
+//
+//        sensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+//        //sensorManager.registerListener(this, head, SensorManager.SENSOR_DELAY_GAME);
+//        sensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+//        sensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
 
     }
 
@@ -138,22 +244,30 @@ public class AccGryLgt extends Service implements SensorEventListener {
 
     }
 
+
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy: the sensor service has been destroyed");
+        writeAccBufferToFile();
+        writeGryoBufferToFile();
+        writeLightBufferToFile();
         sensorManager.unregisterListener(this);
         wakeLock.release();
-        DestroyFile = new File(path2 +"/Acc/Destroy_Service.txt");
-        writeToFile(DestroyFile, "the file was destroyed at: ");
         super.onDestroy();
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        Log.d(TAG, "onSensorChanged: changed");
+        //Log.d(TAG, "onSensorChanged: write to file is: " + writingAccelToFile);
+        //Log.d(TAG, "onSensorChanged: " + writingGyroToFile + "  " + writingLightToFile);
+
+        //Log.d(TAG, "onSensorChanged: wakelock: isheld:  " + wakeLock.isHeld());
+        //Log.d(TAG, "onSensorChanged: wakelock: " + wakeLock.toString());
         if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
             long TS = System.currentTimeMillis();
-            Log.d(TAG, "onSensorChanged: The time stamp check is:  " + TS +" + " + LAST_TS_ACC );
+            //Log.d(TAG, "onSensorChanged: The time stamp check is:  " + TS +" + " + LAST_TS_ACC );
 
             // Filter to remove readings that come too often
             if (TS < LAST_TS_ACC + 100) {
@@ -172,7 +286,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
             LAST_TS_ACC = System.currentTimeMillis();
 
             accelBuffer.append(LAST_TS_ACC + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
-            //Log.d(TAG, "onSensorChanged: \n the buffer length is: " + accelBuffer.length());
+            Log.d(TAG, "onSensorChanged: \n the acc buffer length is: " + accelBuffer.length());
             //Log.d(TAG, "onSensorChanged: the buffer is: " + accelBuffer.toString());
             if((accelBuffer.length() > 500000) && (writingAccelToFile == false) ){
                 writingAccelToFile = true;
@@ -205,10 +319,12 @@ public class AccGryLgt extends Service implements SensorEventListener {
 
         else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE){
 
+            //Log.d(TAG, "onSensorChanged: gyro");
+
 
             long TS = System.currentTimeMillis();
             if (TS < LAST_TS_GYRO + 100) {
-                //Log.d(TAG, "onSensorChanged: skipping");
+                Log.d(TAG, "onSensorChanged: skipping");
                 return;
             }
             // Filter to remove readings that have too small a change from previous reading.
@@ -225,9 +341,11 @@ public class AccGryLgt extends Service implements SensorEventListener {
 
 
             gryoBuffer.append(LAST_TS_GYRO + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
-            //Log.d(TAG, "onSensorChanged: \n the buffer length is: " + gryoBuffer.length());
+            Log.d(TAG, "onSensorChanged: \n the gryo buffer length is: " + gryoBuffer.length());
             //Log.d(TAG, "onSensorChanged: the buffer is: " + accelBuffer.toString());
+            //Log.d(TAG, "onSensorChanged: wrtringgryotofile = " + writingGyroToFile);
             if((gryoBuffer.length() > 500000) && (writingGyroToFile == false) ){
+                Log.d(TAG, "onSensorChanged: 1");
                 writingGyroToFile = true;
 
                 GyroFile = new File(path2 +"/Gyro/"  + LAST_TS_GYRO +"_Service.txt");
@@ -255,6 +373,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
                 }).start();
 
             }
+            //Log.d(TAG, "onSensorChanged: after buffer length check");
 
         }
 
@@ -269,12 +388,13 @@ public class AccGryLgt extends Service implements SensorEventListener {
             if(lightReading > (previousLightReading + 3) || lightReading < (previousLightReading -3)){
                 timeStampLight = System.currentTimeMillis();
                 lightBuffer.append(lightTime + "," + event.values[0] + "\n");
-                //Log.d(TAG, "onSensorChanged: appending to light buffer");
+                Log.d(TAG, "onSensorChanged: appending to light buffer");
+                Log.d(TAG, "onSensorChanged: the light buffer length is: " + lightBuffer.length());
                 previousLightReading = lightReading;
             }
 
 
-            if((lightBuffer.length() > 50000) && (writingLightToFile == false) ){
+            if((lightBuffer.length() > 5000) && (writingLightToFile == false) ){
 
                 timeStampLight = System.currentTimeMillis();
                 LightFile = new File(path2 +"/Light/"  + timeStampLight +"_Service.txt");
@@ -356,4 +476,88 @@ public class AccGryLgt extends Service implements SensorEventListener {
         }
 
     }
+
+    public void writeAccBufferToFile(){
+
+        writingAccelToFile = true;
+
+        AccelFile = new File(path2 +"/Acc/"  + LAST_TS_ACC +"_Service.txt");
+        Log.d(TAG, "onSensorChanged: accelfile created at : " + AccelFile.getPath());
+
+        File parent = AccelFile.getParentFile();
+        if(!parent.exists() && !parent.mkdirs()){
+            throw new IllegalStateException("Couldn't create directory: " + parent);
+        }
+
+        //Try threading to take of UI thread
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //Log.d(TAG, "onSensorChanged: in accelbuffer");
+                // Log.d(TAG, "run: in runnable");
+                //writeToStream(accelBuffer);
+                writeStringBuilderToFile(AccelFile, accelBuffer);
+                accelBuffer.setLength(0);
+                writingAccelToFile = false;
+
+            }
+        }).start();
+
+    }
+
+    public void writeGryoBufferToFile(){
+
+        writingGyroToFile = true;
+
+        GyroFile = new File(path2 +"/Gyro/"  + LAST_TS_GYRO +"_Service.txt");
+        Log.d(TAG, "onSensorChanged: file created at: "+ GyroFile.getPath());
+
+        File parent = GyroFile.getParentFile();
+        if(!parent.exists() && !parent.mkdirs()){
+            throw new IllegalStateException("Couldn't create directory: " + parent);
+        }
+
+
+        //Try threading to take of UI thread
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //Log.d(TAG, "onSensorChanged: in accelbuffer");
+                //Log.d(TAG, "run: in runnable");
+                //writeToStream(accelBuffer);
+                writeStringBuilderToFile(GyroFile, gryoBuffer);
+                gryoBuffer.setLength(0);
+                writingGyroToFile = false;
+
+            }
+        }).start();
+
+    }
+
+    public void writeLightBufferToFile(){
+
+        timeStampLight = System.currentTimeMillis();
+        LightFile = new File(path2 +"/Light/"  + timeStampLight +"_Service.txt");
+        Log.d(TAG, "onSensorChanged: ligtfile created at: " + LightFile.getPath());
+        File parent = LightFile.getParentFile();
+        if(!parent.exists() && !parent.mkdirs()){
+            throw new IllegalStateException("Couldn't create directory: " + parent);
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //Log.d(TAG, "onSensorChanged: in accelbuffer");
+                //Log.d(TAG, "run: in runnable");
+                //writeToStream(accelBuffer);
+                writeStringBuilderToFile(LightFile, lightBuffer);
+                lightBuffer.setLength(0);
+                writingLightToFile = false;
+
+            }
+        }).start();
+
+    }
+
 }
