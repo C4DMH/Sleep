@@ -95,7 +95,7 @@ public class Util {
         if (sS3Client == null) {
             ClientConfiguration config = new ClientConfiguration();
             config.setMaxErrorRetry(500);
-            //config.
+            //config.set
             config.setConnectionTimeout(50000);
             sS3Client = new AmazonS3Client(getCredProvider(context.getApplicationContext()), config);
 

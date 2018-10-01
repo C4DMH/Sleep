@@ -1,15 +1,24 @@
 package gwicks.com.sleep;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -29,11 +38,14 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences prefs;
 
     private static final String TAG = "MainActivity";
+    public static final int REQUEST_WRITE_STORAGE_REQUEST_CODE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        requestAppPermissions();
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean startedBefore = prefs.getBoolean("Finish",false);
@@ -93,6 +105,14 @@ public class MainActivity extends AppCompatActivity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = prefs.edit();
 
+        String path = getExternalFilesDir(null) + "/SleepTimes/";
+
+        File directory = new File(path);
+
+        if(!directory.exists()){
+            directory.mkdirs();
+        }
+
 
         editor.putBoolean("NudgesStarted", false);
         editor.putLong("InstallTime", millis);
@@ -119,9 +139,63 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
 
         //Toast.makeText(this, "The value is: " + morningWeek,Toast.LENGTH_LONG).show();
+        File sleepFile = new File(path+"Sleeptime.txt");
+        writeToFile(sleepFile, morningWeekInt + "," + nightWeekInt + "," + morningWeekendInt +"," + nightWeekendInt + "\n");
 
         Intent finishIntent = new Intent(MainActivity.this, FinishScreen.class);
         MainActivity.this.startActivity(finishIntent);
 
+        //TODO Need to strip out all the recurring log.d writes, as a debug build will keep them!!!!!
+
+    }
+
+    public static void writeToFile(File file, String data) {
+
+        FileOutputStream stream = null;
+
+        try {
+            stream = new FileOutputStream(file, true);
+            stream.write(data.getBytes());
+        } catch (FileNotFoundException e) {
+            Log.e("History", "In catch");
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void requestAppPermissions() {
+
+        Log.d(TAG, "requestAppPermissions: 1");
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+
+        if (hasReadPermissions() && hasWritePermissions()) {
+            return;
+        }
+
+        Log.d(TAG, "requestAppPermissions: 2");
+
+        ActivityCompat.requestPermissions(this,
+                new String[] {
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                }, REQUEST_WRITE_STORAGE_REQUEST_CODE); // your request code
+
+        Log.d(TAG, "requestAppPermissions: 3");
+    }
+
+    private boolean hasReadPermissions() {
+        return (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+    }
+
+    private boolean hasWritePermissions() {
+        return (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
     }
 }

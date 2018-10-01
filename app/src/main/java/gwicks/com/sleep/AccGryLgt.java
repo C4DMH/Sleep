@@ -139,10 +139,10 @@ public class AccGryLgt extends Service implements SensorEventListener {
             Log.d(TAG, "onStartCommand: bigger than O");
             NotificationChannel channel = mNotificationManager.getNotificationChannel(CHANNEL_DI);
             if(channel == null){
-                channel = new NotificationChannel(CHANNEL_DI, "Oreo", NotificationManager.IMPORTANCE_MIN);
+                channel = new NotificationChannel(CHANNEL_DI, "Oreo", NotificationManager.IMPORTANCE_LOW);
 
-                channel.enableVibration(true);
-                channel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+//                channel.enableVibration(true);
+//                channel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
                 mNotificationManager.createNotificationChannel(channel);
             }
 
@@ -153,7 +153,6 @@ public class AccGryLgt extends Service implements SensorEventListener {
                             .setContentText("Sleep app is running")
                             .setOngoing(false)
                             .setChannelId(CHANNEL_DI)
-                            .setPriority(Notification.PRIORITY_MIN)
                             .build();
             //mNotificationManager.notify("first",1, mBuilder);
             Log.d(TAG, "onStartCommand: notification should be built");

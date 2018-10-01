@@ -3,7 +3,6 @@ package gwicks.com.sleep;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.util.Log;
 
 /**
@@ -15,6 +14,7 @@ public class StopLogging extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive: at start");
+
 
 
         //sensors.stopService(sensors);

@@ -74,6 +74,7 @@ public class FinishScreen extends AppCompatActivity {
         Log.d(TAG, "onCreate: calander day of week:" + cal.get(Calendar.DAY_OF_WEEK));
 
         Log.d(TAG, "onCreate: is a weekday: " + isWeekday(dow));
+        Log.d(TAG, "onCreate: dow is: " + dow);
 
         Log.d(TAG, "onCreate: the date is: " + cal.getTime());
         Log.d(TAG, "onCreate: the date2 is " + Calendar.getInstance().getTime());
@@ -406,17 +407,27 @@ public class FinishScreen extends AppCompatActivity {
 //        return i;
 //    }
 
-    // This is for edu link to be displayed in 3 days
+    // This is for edu link to be displayed in 2 days
+    //TODO need to check what happens if dow = 7? Does Sunday = 0 or 1
 
     public int calculateEduLinkDay(int dow){
 
         int i;
-        if(dow <= 4){
-            i = dow +3;
+        if(dow <= 5){
+            i = dow +2;
         }else{
-            i = (dow + 3) - 7;
+            i = (dow + 2) - 7;
         }
         Log.d(TAG, "calculateEduLinkDay: so calculated dow is: " + i);
+
+
+//        int i;
+//        if(dow <= 4){
+//            i = dow +3;
+//        }else{
+//            i = (dow + 3) - 7;
+//        }
+//        Log.d(TAG, "calculateEduLinkDay: so calculated dow is: " + i);
 
         return i;
     }

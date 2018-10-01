@@ -52,7 +52,7 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
 
         // OK time in Millis is dah, in milliseconds, need to add 1000
 
-        if(millis - timeSinceInstall < 299200000 ){
+        if(millis - timeSinceInstall < 172200000 ){
             Log.d(TAG, "onReceive: millis - timesniceinstall: " +(millis - timeSinceInstall) );
             return;
         }
