@@ -1,6 +1,7 @@
 package gwicks.com.sleep;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -14,6 +15,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     public static final int REQUEST_WRITE_STORAGE_REQUEST_CODE = 101;
+    TransferUtility mTransferUtility;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Log.d(TAG, "onCreate: ");
+        mTransferUtility = Util.getTransferUtility(this);
 
 
 
@@ -141,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         //Toast.makeText(this, "The value is: " + morningWeek,Toast.LENGTH_LONG).show();
         File sleepFile = new File(path+"Sleeptime.txt");
         writeToFile(sleepFile, morningWeekInt + "," + nightWeekInt + "," + morningWeekendInt +"," + nightWeekendInt + "\n");
-
+        Util.uploadFileToBucket(sleepFile,"input.txt",false,logUploadCallback, "/Input/");
         Intent finishIntent = new Intent(MainActivity.this, FinishScreen.class);
         MainActivity.this.startActivity(finishIntent);
 
@@ -198,4 +206,34 @@ public class MainActivity extends AppCompatActivity {
     private boolean hasWritePermissions() {
         return (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
     }
+
+    final Util.FileTransferCallback logUploadCallback = new Util.FileTransferCallback() {
+        @SuppressLint("DefaultLocale")
+
+        private String makeLogLine(final String name, final int id, final TransferState state) {
+            Log.d("LogUploadTask", "This is AWSBIT");
+            return String.format("%s | ID: %d | State: %s", name, id, state.toString());
+        }
+
+        @Override
+        public void onCancel(int id, TransferState state) {
+            Log.d(TAG, makeLogLine("Callback onCancel()", id, state));
+        }
+
+        @Override
+        public void onStart(int id, TransferState state) {
+            Log.d(TAG, makeLogLine("Callback onStart()", id, state));
+
+        }
+
+        @Override
+        public void onComplete(int id, TransferState state) {
+            Log.d(TAG, makeLogLine("Callback onComplete()", id, state));
+        }
+
+        @Override
+        public void onError(int id, Exception e) {
+            Log.d(TAG, makeLogLine("Callback onError()", id, TransferState.FAILED), e);
+        }
+    };
 }

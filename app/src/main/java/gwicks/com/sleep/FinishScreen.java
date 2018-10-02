@@ -37,11 +37,6 @@ public class FinishScreen extends AppCompatActivity {
     String nightWeekend;
     int nightWeekendInt;
 
-    int notiTimeWeekday;
-    int notiTimeWeekend;
-
-    int eduTime;
-
     private PendingIntent sensorUploadIntent;
     PendingIntent startLoggingIntent;
     PendingIntent stopLoggingIntent;
@@ -54,14 +49,10 @@ public class FinishScreen extends AppCompatActivity {
     public static final String secureID = Settings.Secure.getString(
             AnyApplication.getInstance().getContentResolver(), Settings.Secure.ANDROID_ID);
 
-
-    //Intent sensors;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finish_screen);
-
 
         Log.d(TAG, "onCreate: the secure device id is: " + secureID);
 
@@ -81,9 +72,6 @@ public class FinishScreen extends AppCompatActivity {
         Log.d(TAG, "onCreate: timezone is: " + TimeZone.getDefault());
 
 
-        eduTime = calculateEduLinkDay(dow);
-
-
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = prefs.edit();
 //
@@ -99,12 +87,6 @@ public class FinishScreen extends AppCompatActivity {
 //
 //        launchSendEmailDialog();
 
-
-
-
-
-
-        long timeSinceInstall = prefs.getLong("InstallTime", 0);
 
         morningWeek = prefs.getString("mW", null);
         Log.d(TAG, "onCreate: morning week is: " + morningWeek);
@@ -129,24 +111,6 @@ public class FinishScreen extends AppCompatActivity {
 
 
         // Start the sensors
-        // TODO: Need to have the sensors only come on at the right time, instead of all day
-
-//        sensors = new Intent(this, AccGryLgt.class);
-//        startService(sensors);
-
-        //Context context = AnyApplication.getInstance();
-        //Adding to try and keep services running in background
-
-
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-//
-//            Intent sensors = new Intent(this, AccGryLgt.class);
-//            startService(sensors);
-//        }
-//        else{
-//            Intent sensors = new Intent(this, AccGryLgt.class);
-//            startForegroundService(sensors);
-//        }
 
         startLogging();
         stopLogging();
@@ -154,14 +118,8 @@ public class FinishScreen extends AppCompatActivity {
         startNudgeAlarm();
         qualtrixNotiWeek(morningWeekInt + 6);
         qualtrixNotiWeekend(morningWeekendInt + 6);
-        educationNotification(eduTime);
-        //startEducationLink();
-
-        //startSensorLoggingAlarm();
-        // setStopSensorIntent();
+        educationNotification();
         startSensorUploadAlarm();
-
-
 
         boolean startedBefore = prefs.getBoolean("Finish",false);
 
@@ -172,18 +130,10 @@ public class FinishScreen extends AppCompatActivity {
             return;
         }
 
-
         launchSendEmailDialog();
 
-
-
         editor.putBoolean("Finish", true);
-
         editor.apply();
-        boolean startedBefore2 = prefs.getBoolean("Finish",false);
-
-        Log.d(TAG, "onCreate: started before2 finish : " + startedBefore2);
-
 
     }
 
@@ -194,10 +144,6 @@ public class FinishScreen extends AppCompatActivity {
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
-        String timey = Long.toString(when);
-
-        //System.out.println("The time changed into nice format is: " + theTime);
-
         Log.d("the time is: ", when + " ");
 
         cal.setTimeInMillis(System.currentTimeMillis());
@@ -206,7 +152,6 @@ public class FinishScreen extends AppCompatActivity {
 
         AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, SensorUploadReceiver.class);
-        //statsIntent = PendingIntent.getBroadcast(this, 3, intent, 0);
         sensorUploadIntent = PendingIntent.getBroadcast(this, 7, intent, 0);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, sensorUploadIntent);
 
@@ -214,23 +159,12 @@ public class FinishScreen extends AppCompatActivity {
 
     // Pending intent to start logging data - should start the logging every day around the time they wake up
 
-    // TODO Once per day decision point: 75/25 Nudge or Don't Nudge
-    // TODO 50/50 One hour or four hours before reported Bedtime
-    // TODO 50/50 Content
-    // TODO record whether they get nudge or not, what nudge etc
-    // TODO Push a link to Qualtrix, one link before nudges start, another link after nudges start ( 1 for pre, 4 for post Nudge start)
-    //
-
     public void startLogging(){
 
         Log.d(TAG, "start Logging alarm");
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
-        String timey = Long.toString(when);
-
-        //System.out.println("The time changed into nice format is: " + theTime);
-
         Log.d("the time is: ", when + " ");
 
         cal.setTimeInMillis(System.currentTimeMillis());
@@ -240,7 +174,6 @@ public class FinishScreen extends AppCompatActivity {
 
         AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, StartLogging.class);
-        //statsIntent = PendingIntent.getBroadcast(this, 3, intent, 0);
         startLoggingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, startLoggingIntent);
 
@@ -253,10 +186,6 @@ public class FinishScreen extends AppCompatActivity {
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
-        String timey = Long.toString(when);
-
-        //System.out.println("The time changed into nice format is: " + theTime);
-
         Log.d("the time is: ", when + " ");
 
         cal.setTimeInMillis(System.currentTimeMillis());
@@ -266,7 +195,6 @@ public class FinishScreen extends AppCompatActivity {
 
         AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, StopLogging.class);
-        //statsIntent = PendingIntent.getBroadcast(this, 3, intent, 0);
         stopLoggingIntent = PendingIntent.getBroadcast(this, 2, intent, 0);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, stopLoggingIntent);
 
@@ -282,10 +210,8 @@ public class FinishScreen extends AppCompatActivity {
             Log.d(TAG, "onReceive: stop service receiver called");
             Intent service = new Intent(context, AccGryLgt.class);
             context.stopService(service);
-
         }
     }
-
 
     // The different alarms for the nudge
 
@@ -294,8 +220,6 @@ public class FinishScreen extends AppCompatActivity {
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
-        ;
-
         Log.d("the time is: ", when + " ");
 
         cal.setTimeInMillis(System.currentTimeMillis());
@@ -307,13 +231,8 @@ public class FinishScreen extends AppCompatActivity {
 
         AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, DecisionPointAlarmReceiver.class);
-        //statsIntent = PendingIntent.getBroadcast(this, 3, intent, 0);
-        decisionPointIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
-        //alarmMgr.setExact();
-
+        decisionPointIntent = PendingIntent.getBroadcast(this, 3, intent, 0);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, decisionPointIntent);
-
-
     }
 
 
@@ -325,10 +244,7 @@ public class FinishScreen extends AppCompatActivity {
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
-
-
         Log.d("the time is: ", when + " ");
-
         cal.setTimeInMillis(System.currentTimeMillis());
 
         cal.set(Calendar.HOUR_OF_DAY, time);
@@ -337,12 +253,10 @@ public class FinishScreen extends AppCompatActivity {
 
         AlarmManager alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, QualtrixNotiOneReceiver.class);
-
-        qualtrixNotiOne = PendingIntent.getBroadcast(this, 2, intent, 0);
-        //alarmMgr.setExact();
-
+        qualtrixNotiOne = PendingIntent.getBroadcast(this, 4, intent, 0);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY, qualtrixNotiOne);
     }
+
 
     public void qualtrixNotiWeekend(int time){
 
@@ -356,14 +270,14 @@ public class FinishScreen extends AppCompatActivity {
         cal.set(Calendar.SECOND, 00);
         AlarmManager alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, QualtrixNotiTwoReceiver.class);
-        qualtrixNotiTwo = PendingIntent.getBroadcast(this, 3, intent, 0);
+        qualtrixNotiTwo = PendingIntent.getBroadcast(this, 5, intent, 0);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY, qualtrixNotiTwo);
     }
 
-    public void educationNotification(int dow){
+    public void educationNotification(){
 
         Log.d(TAG, "starting edu alarm: ");
-        Log.d(TAG, "educationNotification: the dow is: " + dow);
+
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
         Log.d("the time is: ", when + " ");
@@ -374,15 +288,16 @@ public class FinishScreen extends AppCompatActivity {
         cal.set(Calendar.MINUTE, 30);
         cal.set(Calendar.SECOND, 00);
         long calSet = cal.getTimeInMillis();
+        Log.d(TAG, "educationNotification: day of week is: " + day);
         Log.d(TAG, "educationNotification: calset is: " + calSet);
         long oneDay = AlarmManager.INTERVAL_DAY;
-        int noOfDays = 3;
+        int noOfDays = 1;
         Log.d(TAG, "educationNotification: + oneDay * numberof Days: " + oneDay*noOfDays);
         long reminderTime = calSet + (noOfDays * oneDay);
         Log.d(TAG, "educationNotification: cal is : " + reminderTime);
         AlarmManager alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, EducationNotificationReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 4, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 6, intent, 0);
         alarmMgr.set(AlarmManager.RTC_WAKEUP, reminderTime, pendingIntent);
 
     }
@@ -394,40 +309,16 @@ public class FinishScreen extends AppCompatActivity {
     }
 
 
-// This is for 5 day
-//    public int calculateEduLinkDay(int dow){
-//
-//        int i;
-//        if(dow <= 2){
-//            i = dow +5;
-//        }else{
-//            i = (dow + 5) - 7;
-//        }
-//
-//        return i;
-//    }
-
-    // This is for edu link to be displayed in 2 days
-    //TODO need to check what happens if dow = 7? Does Sunday = 0 or 1
 
     public int calculateEduLinkDay(int dow){
 
         int i;
-        if(dow <= 5){
-            i = dow +2;
+        if(dow <= 6){
+            i = dow +1;
         }else{
-            i = (dow + 2) - 7;
+            i = (dow + 1) - 1;
         }
         Log.d(TAG, "calculateEduLinkDay: so calculated dow is: " + i);
-
-
-//        int i;
-//        if(dow <= 4){
-//            i = dow +3;
-//        }else{
-//            i = (dow + 3) - 7;
-//        }
-//        Log.d(TAG, "calculateEduLinkDay: so calculated dow is: " + i);
 
         return i;
     }

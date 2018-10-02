@@ -39,11 +39,15 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
         mContext = context;
         int alarmTime;
 
+        SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        String fileName = dt.format(date);
+
         SharedPreferences mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
 
         long timeSinceInstall = mSharedPreferences.getLong("InstallTime", 0);
-        Date date = new Date(System.currentTimeMillis());
-        long millis = date.getTime();
+        Date date2 = new Date(System.currentTimeMillis());
+        long millis = date2.getTime();
         Log.d(TAG, "onReceive: the timesinceinstall variable is : " + timeSinceInstall);
 
         Log.d(TAG, "buttonClick: current time is: " + millis);
@@ -52,10 +56,11 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
 
         // OK time in Millis is dah, in milliseconds, need to add 1000
 
-        if(millis - timeSinceInstall < 172200000 ){
-            Log.d(TAG, "onReceive: millis - timesniceinstall: " +(millis - timeSinceInstall) );
-            return;
-        }
+//        if(millis - timeSinceInstall < 172200000 ){
+//        if(millis - timeSinceInstall < 2000 ){
+//            Log.d(TAG, "onReceive: millis - timesniceinstall: " +(millis - timeSinceInstall) );
+//            return;
+//        }
 
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putBoolean("NudgesStarted", true);
@@ -93,10 +98,22 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
 
         if(!directory.exists()){
             Log.d(TAG, "onCreate: making directory");
-            directory.mkdir();
+            directory.mkdirs();
+        }
+        if(!directory.exists()){
+            Log.d(TAG, "onCreate: directory still not fucking existing, why the fuck not?");
+
         }
 
-        nudgetext = new File(directory, "NudgeFile.txt");
+        nudgetext = new File(directory, fileName + ".txt");
+
+        if (!nudgetext.exists()) {
+            try {
+                nudgetext.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd");
@@ -119,13 +136,31 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
                 Log.d(TAG, "onReceive: delay < 0.5");
                 writeToFile(nudgetext, currentDate + ", 1 hour,");
                 delay = 1;// * 60 *60 *1000; // delay 1 hour
-                alarmTime = sleepActualTime -1;
+                if(sleepActualTime == 0){
+                    alarmTime = 23;
+                }else if(sleepActualTime == 1){
+                    alarmTime = 23;
+                }else{
+                    alarmTime = sleepActualTime -1;
+                }
+
+                //TODO if time is after 1am, and delay is 1 hour, we get midnight, which android assumes is prior midnight, not next one!
+
                 Log.d(TAG, "onReceive: alarm time is: " + alarmTime + " and actual sleep time is: " + sleepActualTime + " because sleeptime variable is: " + sleepTime);
             }else{
                 Log.d(TAG, "onReceive: delay > 0.5");
                 delay = 4;// * 60 * 60 * 1000; //delay 4 hours
                 writeToFile(nudgetext, currentDate + ", 4 hour,");
-                alarmTime = sleepActualTime - 4;
+                if(sleepActualTime == 0){
+                    alarmTime = 20;
+                }else if(sleepActualTime == 1){
+                    alarmTime = 21;
+                }else{
+                    alarmTime = sleepActualTime -4;
+                }
+
+
+               // alarmTime = sleepActualTime - 4;
                 Log.d(TAG, "onReceive: alarm time is: " + alarmTime + " and actual sleep time is: " + sleepActualTime + " because sleeptime variable is: " + sleepTime);
             }
 
@@ -142,21 +177,24 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
-        ;
 
         Log.d("the time is: ", when + " ");
 
         cal.setTimeInMillis(System.currentTimeMillis());
         cal.set(Calendar.HOUR_OF_DAY, alarmTime);
+        //cal.set(Calendar.HOUR_OF_DAY, 23);
+
         cal.set(Calendar.MINUTE, 00);
         cal.set(Calendar.SECOND,00);
 //        cal.set(Calendar.HOUR_OF_DAY, 12);
 //        cal.set(Calendar.MINUTE, 56);
 
+        Log.d(TAG, "startNudgeNotificationAlarm: the notification alarm is set fir: " + cal.getTimeInMillis());
+
         AlarmManager alarmMgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(mContext, NotificationAlarmReceiver.class);
         //statsIntent = PendingIntent.getBroadcast(this, 3, intent, 0);
-        notificationIntent = PendingIntent.getBroadcast(mContext, 2, intent, 0);
+        notificationIntent = PendingIntent.getBroadcast(mContext, 9, intent, 0);
         //alarmMgr.setExact();
 
         alarmMgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), notificationIntent);

@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by gwicks on 20/09/2018.
@@ -38,6 +40,10 @@ public class NotificationAlarmReceiver extends BroadcastReceiver{
 
         String nudge = "";
 
+        SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        String fileName = dt.format(date);
+
         if(Math.random() < 0.5){
             Log.d(TAG, "onReceive: nudge < 0.5");
             nudge = "Make sure to set your alarm for your normal wakeup time.";
@@ -46,15 +52,15 @@ public class NotificationAlarmReceiver extends BroadcastReceiver{
             nudge = "Remember to use your wake up routine tomorrow morning.";
         }
 
-        String path2 = (context.getExternalFilesDir(null) + "/Nudges/");
+        String path2 = (context.getExternalFilesDir(null) + "/Sensors/Nudges/");
         File directory = new File(path2);
 
         if(!directory.exists()){
             Log.d(TAG, "onCreate: making directory");
-            directory.mkdir();
+            directory.mkdirs();
         }
 
-        nudgetext = new File(directory, "NudgeFile.txt");
+        nudgetext = new File(directory, fileName + ".txt");
 
         writeToFile(nudgetext, nudge + "\n");
 
@@ -98,7 +104,7 @@ public class NotificationAlarmReceiver extends BroadcastReceiver{
                         .build();
 
 
-        mNotificationManager.notify("first",1, mBuilder);
+        mNotificationManager.notify("nudge",3, mBuilder);
         Log.d(TAG, "onReceive OREO: should be notification built now");
 
 

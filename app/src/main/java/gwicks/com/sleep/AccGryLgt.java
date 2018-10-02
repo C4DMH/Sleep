@@ -216,7 +216,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
 
         if(!directory2.exists()){
             Log.d(TAG, "onCreate: making directory");
-            directory2.mkdir();
+            directory2.mkdirs();
         }
 
 //        List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
@@ -261,7 +261,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Log.d(TAG, "onSensorChanged: changed");
+        //Log.d(TAG, "onSensorChanged: changed");
         //Log.d(TAG, "onSensorChanged: write to file is: " + writingAccelToFile);
         //Log.d(TAG, "onSensorChanged: " + writingGyroToFile + "  " + writingLightToFile);
 
@@ -291,7 +291,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
             LAST_TS_ACC = System.currentTimeMillis();
 
             accelBuffer.append(LAST_TS_ACC + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
-            Log.d(TAG, "onSensorChanged: \n the acc buffer length is: " + accelBuffer.length());
+            //Log.d(TAG, "onSensorChanged: \n the acc buffer length is: " + accelBuffer.length());
             //Log.d(TAG, "onSensorChanged: the buffer is: " + accelBuffer.toString());
             if((accelBuffer.length() > 500000) && (writingAccelToFile == false) ){
                 writingAccelToFile = true;
@@ -329,7 +329,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
 
             long TS = System.currentTimeMillis();
             if (TS < LAST_TS_GYRO + 100) {
-                Log.d(TAG, "onSensorChanged: skipping");
+                //Log.d(TAG, "onSensorChanged: skipping");
                 return;
             }
             // Filter to remove readings that have too small a change from previous reading.
@@ -346,7 +346,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
 
 
             gryoBuffer.append(LAST_TS_GYRO + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
-            Log.d(TAG, "onSensorChanged: \n the gryo buffer length is: " + gryoBuffer.length());
+            //Log.d(TAG, "onSensorChanged: \n the gryo buffer length is: " + gryoBuffer.length());
             //Log.d(TAG, "onSensorChanged: the buffer is: " + accelBuffer.toString());
             //Log.d(TAG, "onSensorChanged: wrtringgryotofile = " + writingGyroToFile);
             if((gryoBuffer.length() > 500000) && (writingGyroToFile == false) ){
@@ -393,8 +393,8 @@ public class AccGryLgt extends Service implements SensorEventListener {
             if(lightReading > (previousLightReading + 3) || lightReading < (previousLightReading -3)){
                 timeStampLight = System.currentTimeMillis();
                 lightBuffer.append(lightTime + "," + event.values[0] + "\n");
-                Log.d(TAG, "onSensorChanged: appending to light buffer");
-                Log.d(TAG, "onSensorChanged: the light buffer length is: " + lightBuffer.length());
+                //Log.d(TAG, "onSensorChanged: appending to light buffer");
+                //Log.d(TAG, "onSensorChanged: the light buffer length is: " + lightBuffer.length());
                 previousLightReading = lightReading;
             }
 

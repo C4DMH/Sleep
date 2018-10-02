@@ -50,6 +50,7 @@ public class QualtrixNotiOneReceiver extends BroadcastReceiver {
 
         SharedPreferences mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         boolean started = mSharedPreferences.getBoolean("NudgesStarted", false); // Have the nudges started, if so change link
+        Log.d(TAG, "onReceive: started = " + started);
 
         if(started){
             qualtrixURL = secondQualtrixLink;

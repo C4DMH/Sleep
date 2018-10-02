@@ -19,18 +19,18 @@ public class StartLogging extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive: ");
 
-        // sleep for 5 seconds to ensure on install that start logging is called after stopping logging. Should only
-        // make a difference on the first day of the study, immediately after install
-        try {
-
-            //sleep 5 seconds
-            Thread.sleep(5000);
-
-            System.out.println("Testing..." );
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        // sleep for 5 seconds to ensure on install that start logging is called after stopping logging. Should only
+//        // make a difference on the first day of the study, immediately after install
+//        try {
+//
+//            //sleep 5 seconds
+//            Thread.sleep(5000);
+//
+//            System.out.println("Testing..." );
+//
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
         // foreground service is phone is oreo or later
 

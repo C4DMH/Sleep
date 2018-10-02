@@ -97,7 +97,7 @@ public class QualtrixNotiTwoReceiver extends BroadcastReceiver {
                         .setContentIntent(pendingIntent)
                         .build();
 
-        mNotificationManager.notify("first",1, mBuilder);
+        mNotificationManager.notify("second",2, mBuilder);
         Log.d(TAG, "onReceive OREO: should be notification built now");
     }
 
