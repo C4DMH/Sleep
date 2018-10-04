@@ -3,6 +3,7 @@ package gwicks.com.sleep;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -97,6 +98,7 @@ public class Util {
             config.setMaxErrorRetry(500);
             //config.set
             config.setConnectionTimeout(50000);
+
             sS3Client = new AmazonS3Client(getCredProvider(context.getApplicationContext()), config);
 
         }
@@ -314,18 +316,18 @@ public class Util {
                         break;
                     case COMPLETED:
 
-//                        long unixTime = System.currentTimeMillis() / 1000L;
-//                        String desination = Environment.getExternalStorageDirectory().getAbsolutePath() + "/videoDIARY/buffered_" + unixTime + ".log";
-//
-//
-//                        File destination = new File(desination);
-//                        try {
-//                            FileUtils.copyFile(file, destination);
-//                            Log.d("LogUploadTask", "Copyting file to VideoDIARY");
-//
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
+                        long unixTime = System.currentTimeMillis() / 1000L;
+                        String desination = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Sleep/"+ filename + unixTime + ".copy";
+
+
+                        File destination = new File(desination);
+                        try {
+                            FileUtils.copyFile(file, destination);
+                            Log.d("LogUploadTask", "Copyting file to VideoDIARY");
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
 
                         Log.d(TAG, String.format("Transfer ID %d has completed", id));

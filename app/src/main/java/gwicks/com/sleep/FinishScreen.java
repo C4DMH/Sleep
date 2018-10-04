@@ -7,7 +7,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
@@ -60,6 +63,21 @@ public class FinishScreen extends AppCompatActivity {
 
         Calendar cal = Calendar.getInstance();
         int dow = cal.get(Calendar.DAY_OF_WEEK);
+        Log.d(TAG, "onCreate: before battery");
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent intent = new Intent();
+            String packageName = getPackageName();
+            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + packageName));
+                startActivity(intent);
+            }
+        }
+
+        Log.d(TAG, "onCreate: after battery");
+
         //int timeToDoEducationLink
 
         Log.d(TAG, "onCreate: calander day of week:" + cal.get(Calendar.DAY_OF_WEEK));
@@ -113,13 +131,32 @@ public class FinishScreen extends AppCompatActivity {
         // Start the sensors
 
         startLogging();
-        stopLogging();
+
+        //prevent logging on install
+
+//        try {
+//
+//            //sleep 5 seconds
+//            Thread.sleep(5000);
+//
+//            System.out.println("Testing..." );
+//
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+
+
+
+
 
         startNudgeAlarm();
         qualtrixNotiWeek(morningWeekInt + 6);
         qualtrixNotiWeekend(morningWeekendInt + 6);
         educationNotification();
         startSensorUploadAlarm();
+
+        stopLogging();
 
         boolean startedBefore = prefs.getBoolean("Finish",false);
 
@@ -144,11 +181,20 @@ public class FinishScreen extends AppCompatActivity {
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
+
         Log.d("the time is: ", when + " ");
 
         cal.setTimeInMillis(System.currentTimeMillis());
-        cal.set(Calendar.HOUR_OF_DAY, 10);
-        cal.set(Calendar.MINUTE, 53);
+        cal.set(Calendar.HOUR_OF_DAY, 11);
+        cal.set(Calendar.MINUTE, 00);
+
+        // This will prevent premature firing
+
+//        Calendar now = Calendar.getInstance();
+//        now.setTimeInMillis(System.currentTimeMillis());
+//        if(cal.before(now)){
+//            cal.add(Calendar.DAY_OF_MONTH,1);
+//        }
 
         AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, SensorUploadReceiver.class);
@@ -251,6 +297,16 @@ public class FinishScreen extends AppCompatActivity {
         cal.set(Calendar.MINUTE, 30);
         cal.set(Calendar.SECOND, 00);
 
+        // This will prevent premature firing
+
+//        Calendar now = Calendar.getInstance();
+//        now.setTimeInMillis(System.currentTimeMillis());
+//        if(cal.before(now)){
+//            Log.d(TAG, "qualtrixNotiWeek: skipping today");
+//            cal.add(Calendar.DAY_OF_MONTH,1);
+//            Log.d(TAG, "qualtrixNotiWeek: qualtrix alarm set repeating for " + cal.getTimeInMillis());
+//        }
+
         AlarmManager alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, QualtrixNotiOneReceiver.class);
         qualtrixNotiOne = PendingIntent.getBroadcast(this, 4, intent, 0);
@@ -291,7 +347,7 @@ public class FinishScreen extends AppCompatActivity {
         Log.d(TAG, "educationNotification: day of week is: " + day);
         Log.d(TAG, "educationNotification: calset is: " + calSet);
         long oneDay = AlarmManager.INTERVAL_DAY;
-        int noOfDays = 1;
+        int noOfDays = 5;
         Log.d(TAG, "educationNotification: + oneDay * numberof Days: " + oneDay*noOfDays);
         long reminderTime = calSet + (noOfDays * oneDay);
         Log.d(TAG, "educationNotification: cal is : " + reminderTime);

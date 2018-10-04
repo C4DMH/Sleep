@@ -126,7 +126,7 @@ public class SensorUploadReceiver extends BroadcastReceiver {
         @SuppressLint("DefaultLocale")
 
         private String makeLogLine(final String name, final int id, final TransferState state) {
-            Log.d("LogUploadTask", "This is AWSBIT");
+            Log.d(TAG, "makeLogLine: ");
             return String.format("%s | ID: %d | State: %s", name, id, state.toString());
         }
 

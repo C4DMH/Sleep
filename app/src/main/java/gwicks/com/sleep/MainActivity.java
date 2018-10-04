@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -119,6 +120,13 @@ public class MainActivity extends AppCompatActivity {
 
         if(!directory.exists()){
             directory.mkdirs();
+        }
+
+        String desination = Environment.getExternalStorageDirectory().getAbsolutePath() + "/sleep/";
+        File destination = new File(desination);
+
+        if(!destination.exists()){
+            destination.mkdirs();
         }
 
 

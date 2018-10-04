@@ -55,12 +55,12 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
         //what is this? Is this for the education link? OK it's because nudges dont start for 7 days
 
         // OK time in Millis is dah, in milliseconds, need to add 1000
+        // 6.77 days
 
-//        if(millis - timeSinceInstall < 172200000 ){
-//        if(millis - timeSinceInstall < 2000 ){
-//            Log.d(TAG, "onReceive: millis - timesniceinstall: " +(millis - timeSinceInstall) );
-//            return;
-//        }
+        if(millis - timeSinceInstall < 585200000 ){
+            Log.d(TAG, "onReceive: millis - timesniceinstall: " +(millis - timeSinceInstall) );
+            return;
+        }
 
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putBoolean("NudgesStarted", true);
