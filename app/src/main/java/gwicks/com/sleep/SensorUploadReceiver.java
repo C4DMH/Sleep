@@ -63,6 +63,7 @@ public class SensorUploadReceiver extends BroadcastReceiver {
         SimpleDateFormat df = new SimpleDateFormat("ddMMyyyy_HHmmssSSS");
         String formattedDate = df.format(c.getTime());
 
+
         String path = mContext.getExternalFilesDir(null) + finalPath;
 
         File directory = new File(path);

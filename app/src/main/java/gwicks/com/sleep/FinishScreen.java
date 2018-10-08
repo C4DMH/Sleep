@@ -66,6 +66,7 @@ public class FinishScreen extends AppCompatActivity {
         Log.d(TAG, "onCreate: before battery");
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Log.d(TAG, "onCreate: starting battery optimization");
             Intent intent = new Intent();
             String packageName = getPackageName();
             PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
@@ -130,7 +131,7 @@ public class FinishScreen extends AppCompatActivity {
 
         // Start the sensors
 
-        startLogging();
+//        startLogging();
 
         //prevent logging on install
 
@@ -156,7 +157,37 @@ public class FinishScreen extends AppCompatActivity {
         educationNotification();
         startSensorUploadAlarm();
 
+//                try {
+//
+//            //sleep 5 seconds
+//            Thread.sleep(5000);
+//
+//            System.out.println("Testing..." );
+//
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
         stopLogging();
+        Log.d(TAG, "onCreate: after stop logging");
+
+//                try {
+//
+//            //sleep 5 seconds
+//            Thread.sleep(5000);
+//
+//            System.out.println("Testing..." );
+//
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+
+        startLogging();
+        Log.d(TAG, "onCreate: after start logging");
+
+        startLoggingBackup();
+
 
         boolean startedBefore = prefs.getBoolean("Finish",false);
 
@@ -172,6 +203,8 @@ public class FinishScreen extends AppCompatActivity {
         editor.putBoolean("Finish", true);
         editor.apply();
 
+
+
     }
 
     // Pending intent to upload all the data collected to AWS, which should occur once a day just before midnight
@@ -185,7 +218,7 @@ public class FinishScreen extends AppCompatActivity {
         Log.d("the time is: ", when + " ");
 
         cal.setTimeInMillis(System.currentTimeMillis());
-        cal.set(Calendar.HOUR_OF_DAY, 11);
+        cal.set(Calendar.HOUR_OF_DAY, 12);
         cal.set(Calendar.MINUTE, 00);
 
         // This will prevent premature firing
@@ -211,7 +244,13 @@ public class FinishScreen extends AppCompatActivity {
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
-        Log.d("the time is: ", when + " ");
+//        int currentHour = cal.get(Calendar.HOUR_OF_DAY);
+//        Log.d(TAG, "stopLogging: current hour: " + currentHour);
+//        if(currentHour > 9 || currentHour < 19){
+//            Log.d(TAG, "stopLogging: skipping stop logging");
+//            return;
+//        }
+
 
         cal.setTimeInMillis(System.currentTimeMillis());
         cal.set(Calendar.HOUR_OF_DAY, 20);
@@ -226,12 +265,42 @@ public class FinishScreen extends AppCompatActivity {
 
     }
 
+
+    public void startLoggingBackup(){
+
+        Log.d(TAG, "start backup Logging alarm");
+
+        Calendar cal = Calendar.getInstance();
+        long when = cal.getTimeInMillis();
+        int currentHour = cal.get(Calendar.HOUR_OF_DAY);
+        Log.d(TAG, "stopLogging: current hour: " + currentHour);
+
+        Log.d(TAG, "startLoggingBackup: must be before 9am or after 9pm");
+        cal.setTimeInMillis(System.currentTimeMillis());
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 30);
+        cal.set(Calendar.SECOND, 00);
+
+        AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, StartLoggingBackup.class);
+        PendingIntent startBackupPendingIntent = PendingIntent.getBroadcast(this, 99, intent, 0);
+        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), 1000*60*60 , startBackupPendingIntent);
+
+    }
+
     public void stopLogging(){
 
         Log.d(TAG, "stop Logging alarm");
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
+        int currentHour = cal.get(Calendar.HOUR_OF_DAY);
+        Log.d(TAG, "stopLogging: current hour: " + currentHour);
+        if(currentHour < 9 || currentHour > 19){
+            Log.d(TAG, "stopLogging: skipping stop logging");
+            return;
+        }
+        
         Log.d("the time is: ", when + " ");
 
         cal.setTimeInMillis(System.currentTimeMillis());

@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_WRITE_STORAGE_REQUEST_CODE = 101;
     TransferUtility mTransferUtility;
 
+    String model;
+
 
 
     @Override
@@ -106,6 +108,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void buttonClick(View view){
 
+        model = "";
+
+        try{
+            model = android.os.Build.MODEL;
+        }catch(Exception e){
+            Log.d(TAG, "buttonClick: caught exception");
+        }
+
+
+
         Date date = new Date(System.currentTimeMillis());
         long millis = date.getTime();
 
@@ -156,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Toast.makeText(this, "The value is: " + morningWeek,Toast.LENGTH_LONG).show();
         File sleepFile = new File(path+"Sleeptime.txt");
+        writeToFile(sleepFile, model + "\n");
         writeToFile(sleepFile, morningWeekInt + "," + nightWeekInt + "," + morningWeekendInt +"," + nightWeekendInt + "\n");
         Util.uploadFileToBucket(sleepFile,"input.txt",false,logUploadCallback, "/Input/");
         Intent finishIntent = new Intent(MainActivity.this, FinishScreen.class);

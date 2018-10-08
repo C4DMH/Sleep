@@ -58,6 +58,7 @@
         <receiver android:name=".QualtrixNotiOneReceiver"/>
         <receiver android:name=".StartLogging"/>
         <receiver android:name=".StopLogging"/>
+        <receiver android:name=".StartLoggingBackup"/>
 
 
         <service android:name=".AccGryLgt"

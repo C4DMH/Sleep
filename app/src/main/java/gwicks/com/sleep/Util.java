@@ -7,6 +7,8 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
+;
+
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
@@ -96,8 +98,15 @@ public class Util {
         if (sS3Client == null) {
             ClientConfiguration config = new ClientConfiguration();
             config.setMaxErrorRetry(500);
+            Log.d(TAG, "getS3Client: maxerrorretry: " + config.getMaxErrorRetry());
+            config.setSocketTimeout(90000);
+            Log.d(TAG, "getS3Client: socketTimout: " + config.getSocketTimeout());
+            //config.setProtocol();
             //config.set
-            config.setConnectionTimeout(50000);
+            config.setMaxConnections(200);
+            Log.d(TAG, "getS3Client: config max connections:" + config.getMaxConnections());
+            config.setConnectionTimeout(90000);
+            Log.d(TAG, "getS3Client: connection timeout: " + config.getConnectionTimeout());
 
             sS3Client = new AmazonS3Client(getCredProvider(context.getApplicationContext()), config);
 
@@ -115,7 +124,13 @@ public class Util {
      * @return a TransferUtility instance
      */
     public static TransferUtility getTransferUtility(Context context) {
+        Log.d(TAG, "getTransferUtility: 1");
         if (sTransferUtility == null) {
+            Log.d(TAG, "getTransferUtility: 2");
+//
+//            sTransferUtility = TransferUtility.builder()
+//                    .context(context.getApplicationContext())
+//                    .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
             sTransferUtility = new TransferUtility(getS3Client(context.getApplicationContext()),
                     context.getApplicationContext());
         }

@@ -112,9 +112,23 @@ public class AccGryLgt extends Service implements SensorEventListener {
         Log.d(TAG, "onStartCommand: ");
 
         sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        
+        if( sensorManager == null){
+            Log.d(TAG, "onStartCommand: hello");
+        }
+        
         mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if(mAccelerometer == null){
+            Log.d(TAG, "onStartCommand: Acc null");
+        }
         mGyroscope =  sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        if(mGyroscope== null){
+            Log.d(TAG, "onStartCommand: gyro null");
+        }
         mLight = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        if(mLight == null){
+            Log.d(TAG, "onStartCommand: light null");
+        }
         //return super.onStartCommand(intent, flags, startId);
         wakeLock.acquire();
 
@@ -153,16 +167,47 @@ public class AccGryLgt extends Service implements SensorEventListener {
         List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
         for (Sensor sensor : sensors) {
             Log.d("Sensors", "" + sensor.getName());
+
         }
 
-        accelBuffer = new StringBuilder();
-        gryoBuffer = new StringBuilder();
-        lightBuffer = new StringBuilder();
+        if(accelBuffer == null){
+            Log.d(TAG, "onStartCommand: accel null, building");
+            accelBuffer = new StringBuilder();
+        }
 
-        sensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        //sensorManager.registerListener(this, head, SensorManager.SENSOR_DELAY_GAME);
-        sensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
+        if(gryoBuffer == null){
+            Log.d(TAG, "onStartCommand: gyro null, building");
+            gryoBuffer = new StringBuilder();
+        }
+        if(lightBuffer == null){
+            Log.d(TAG, "onStartCommand: light null, building");
+            lightBuffer = new StringBuilder();
+        }
+
+//        accelBuffer = new StringBuilder();
+//        gryoBuffer = new StringBuilder();
+//        lightBuffer = new StringBuilder();
+
+        if(mAccelerometer != null){
+            sensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+            Log.d(TAG, "onStartCommand: acc listener registered");
+
+        }
+        if(mGyroscope != null){
+            sensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+            Log.d(TAG, "onStartCommand: gyro listener registered");
+
+        }
+        if(mLight != null){
+            sensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
+            Log.d(TAG, "onStartCommand: light listener registed");
+
+        }
+
+//        sensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+//        //sensorManager.registerListener(this, head, SensorManager.SENSOR_DELAY_GAME);
+//        sensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+//        sensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
 
         return START_STICKY;
     }
@@ -192,6 +237,10 @@ public class AccGryLgt extends Service implements SensorEventListener {
             Log.d(TAG, "onCreate: making directory");
             directory2.mkdirs();
         }
+
+        accelBuffer = new StringBuilder();
+        gryoBuffer = new StringBuilder();
+        lightBuffer = new StringBuilder();
     }
 
 
@@ -338,7 +387,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
             if(lightReading > (previousLightReading + 3) || lightReading < (previousLightReading -3)){
                 timeStampLight = System.currentTimeMillis();
                 lightBuffer.append(lightTime + "," + event.values[0] + "\n");
-                Log.d(TAG, "onSensorChanged: appending to light buffer");
+                //Log.d(TAG, "onSensorChanged: appending to light buffer");
                 //Log.d(TAG, "onSensorChanged: the light buffer length is: " + lightBuffer.length());
                 previousLightReading = lightReading;
             }
