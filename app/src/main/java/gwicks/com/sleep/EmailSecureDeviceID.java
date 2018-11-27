@@ -50,7 +50,7 @@ public class EmailSecureDeviceID extends DialogFragment {
         // Send the Secure Device ID to whomever is running the study
 
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                "mailto", "mrt4sleep@protonmail.com", null));
+                "mailto", "insertemailhere", null));
         //emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {"zelaznyjh@upmc.edu"});
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, secureDeviceID);
         emailIntent.putExtra(Intent.EXTRA_TEXT, "No Need to put anything here, just press send :)");
