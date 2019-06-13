@@ -11,7 +11,7 @@ public class Constants {
      * You should replace these values with your own. See the README for details
      * on what to fill in.
      */
-    public static final String COGNITO_POOL_ID = "us-west-2:41d228a6-292a-4ebb-9f37-cf96c33063a2";
+    public static final String COGNITO_POOL_ID = "removed";
 
 
     /*
