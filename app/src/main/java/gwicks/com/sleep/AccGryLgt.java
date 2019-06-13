@@ -226,7 +226,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
         Log.d(TAG, "AccelGyroLight: starting accelgyrolight constructor");
 
         PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AccGryLgt - Service");
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AccGryLgt:Service");
 
         path2 = (getExternalFilesDir(null) + "/Sensors");
         Log.d(TAG, "AccGryLgt:  the path to externalfilesdir is: " + path2);
@@ -238,6 +238,12 @@ public class AccGryLgt extends Service implements SensorEventListener {
             directory2.mkdirs();
         }
 
+        Log.d(TAG, "onCreate: before new transferservice");
+
+        //getApplicationContext().startService(new Intent(getApplicationContext(), TransferService.class));
+
+        Log.d(TAG, "onCreate: after new transferservice");
+        
         accelBuffer = new StringBuilder();
         gryoBuffer = new StringBuilder();
         lightBuffer = new StringBuilder();
@@ -285,7 +291,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
             LAST_TS_ACC = System.currentTimeMillis();
 
             accelBuffer.append(LAST_TS_ACC + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
-            //Log.d(TAG, "onSensorChanged: \n the acc buffer length is: " + accelBuffer.length());
+            Log.d(TAG, "onSensorChanged: \n the acc buffer length is: " + accelBuffer.length());
             //Log.d(TAG, "onSensorChanged: the buffer is: " + accelBuffer.toString());
             if((accelBuffer.length() > 500000) && (writingAccelToFile == false) ){
                 writingAccelToFile = true;
@@ -340,7 +346,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
 
 
             gryoBuffer.append(LAST_TS_GYRO + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
-            //Log.d(TAG, "onSensorChanged: \n the gryo buffer length is: " + gryoBuffer.length());
+            Log.d(TAG, "onSensorChanged: \n the gryo buffer length is: " + gryoBuffer.length());
             //Log.d(TAG, "onSensorChanged: the buffer is: " + accelBuffer.toString());
             //Log.d(TAG, "onSensorChanged: wrtringgryotofile = " + writingGyroToFile);
             if((gryoBuffer.length() > 500000) && (writingGyroToFile == false) ){
@@ -387,8 +393,8 @@ public class AccGryLgt extends Service implements SensorEventListener {
             if(lightReading > (previousLightReading + 3) || lightReading < (previousLightReading -3)){
                 timeStampLight = System.currentTimeMillis();
                 lightBuffer.append(lightTime + "," + event.values[0] + "\n");
-                //Log.d(TAG, "onSensorChanged: appending to light buffer");
-                //Log.d(TAG, "onSensorChanged: the light buffer length is: " + lightBuffer.length());
+                Log.d(TAG, "onSensorChanged: appending to light buffer");
+                Log.d(TAG, "onSensorChanged: the light buffer length is: " + lightBuffer.length());
                 previousLightReading = lightReading;
             }
 

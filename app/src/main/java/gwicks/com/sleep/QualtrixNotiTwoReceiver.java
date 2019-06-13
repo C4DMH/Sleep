@@ -33,6 +33,10 @@ public class QualtrixNotiTwoReceiver extends BroadcastReceiver {
     String header;
     public static String firstQualtrixLink = "https://oregon.qualtrics.com/jfe/form/SV_6zoaJMOHop0Q0AZ";
     public static String secondQualtrixLink = "https://oregon.qualtrics.com/jfe/form/SV_aXazAkwvhEUPdR3";
+
+//    public static String firstQualtrixLink = "https://oregon.qualtrics.com/jfe/form/SV_aXazAkwvhEUPdR3";
+//    public static String secondQualtrixLink = "https://oregon.qualtrics.com/jfe/form/SV_aXazAkwvhEUPdR3";
+
     public static String firstHeader = "Qualtrix Survey One";
     public static String secondHeader = "Qualtrix Survey Two";
 
@@ -48,6 +52,11 @@ public class QualtrixNotiTwoReceiver extends BroadcastReceiver {
 
         if(isWeekday(dow)){
             Log.d(TAG, "onReceive: week so skip!!");
+            return;
+        }
+
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        if(hour >= 12){
             return;
         }
 

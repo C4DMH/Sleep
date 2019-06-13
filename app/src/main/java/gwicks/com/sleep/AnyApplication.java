@@ -1,7 +1,10 @@
 package gwicks.com.sleep;
 
 import android.app.Application;
+import android.content.Intent;
 import android.util.Log;
+
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
 
 /**
  * Created by gwicks on 25/09/2018.
@@ -20,6 +23,9 @@ public class AnyApplication extends Application {
         //context = this ;
         instance = this;
         Log.d(TAG, "onCreate: instance = " + instance);
+
+        getApplicationContext().startService(new Intent(getApplicationContext(), TransferService.class));
+
     }
 
     //    //public static Context getAppContext(){

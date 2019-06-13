@@ -15,6 +15,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -43,6 +44,7 @@ public class FinishScreen extends AppCompatActivity {
     private PendingIntent sensorUploadIntent;
     PendingIntent startLoggingIntent;
     PendingIntent stopLoggingIntent;
+    PendingIntent restartAppIntent;
 
     private PendingIntent decisionPointIntent;
 
@@ -51,6 +53,10 @@ public class FinishScreen extends AppCompatActivity {
 
     public static final String secureID = Settings.Secure.getString(
             AnyApplication.getInstance().getContentResolver(), Settings.Secure.ANDROID_ID);
+
+    int eduLinkDay;
+
+    TextView placeholder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +70,9 @@ public class FinishScreen extends AppCompatActivity {
         Calendar cal = Calendar.getInstance();
         int dow = cal.get(Calendar.DAY_OF_WEEK);
         Log.d(TAG, "onCreate: before battery");
+
+        placeholder = (TextView)findViewById(R.id.textView5);
+        placeholder.setText(getIntent().getStringExtra("message"));
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Log.d(TAG, "onCreate: starting battery optimization");
@@ -106,6 +115,10 @@ public class FinishScreen extends AppCompatActivity {
 //
 //        launchSendEmailDialog();
 
+        int dayOfYear = prefs.getInt("doy",1);
+
+        int eduAlarmDay = calculateEduLinkDay(dayOfYear);
+
 
         morningWeek = prefs.getString("mW", null);
         Log.d(TAG, "onCreate: morning week is: " + morningWeek);
@@ -128,66 +141,15 @@ public class FinishScreen extends AppCompatActivity {
 
         Log.d(TAG, "onCreate: " + morningWeek + " , " + nightWeek + " , " + morningWeekend + " , " + nightWeekend + "the nightweek int is: " + nightWeekInt );
 
-
-        // Start the sensors
-
-//        startLogging();
-
-        //prevent logging on install
-
-//        try {
-//
-//            //sleep 5 seconds
-//            Thread.sleep(5000);
-//
-//            System.out.println("Testing..." );
-//
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
-
-
-
-
-
         startNudgeAlarm();
         qualtrixNotiWeek(morningWeekInt + 6);
         qualtrixNotiWeekend(morningWeekendInt + 6);
-        educationNotification();
+        educationNotification(eduAlarmDay);
         startSensorUploadAlarm();
-
-//                try {
-//
-//            //sleep 5 seconds
-//            Thread.sleep(5000);
-//
-//            System.out.println("Testing..." );
-//
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
         stopLogging();
-        Log.d(TAG, "onCreate: after stop logging");
-
-//                try {
-//
-//            //sleep 5 seconds
-//            Thread.sleep(5000);
-//
-//            System.out.println("Testing..." );
-//
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
-
         startLogging();
-        Log.d(TAG, "onCreate: after start logging");
-
         startLoggingBackup();
-
+        //restartApp();
 
         boolean startedBefore = prefs.getBoolean("Finish",false);
 
@@ -202,9 +164,6 @@ public class FinishScreen extends AppCompatActivity {
 
         editor.putBoolean("Finish", true);
         editor.apply();
-
-
-
     }
 
     // Pending intent to upload all the data collected to AWS, which should occur once a day just before midnight
@@ -218,8 +177,14 @@ public class FinishScreen extends AppCompatActivity {
         Log.d("the time is: ", when + " ");
 
         cal.setTimeInMillis(System.currentTimeMillis());
-        cal.set(Calendar.HOUR_OF_DAY, 12);
-        cal.set(Calendar.MINUTE, 00);
+        cal.set(Calendar.HOUR_OF_DAY, 15);
+        cal.set(Calendar.MINUTE, 20);
+
+        boolean alarmUp = (PendingIntent.getBroadcast(this, 7,
+                new Intent(FinishScreen.this, SensorUploadReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        Log.d(TAG, "startSensorUpload: boolean alarm up is: " + alarmUp);
 
         // This will prevent premature firing
 
@@ -234,6 +199,12 @@ public class FinishScreen extends AppCompatActivity {
         sensorUploadIntent = PendingIntent.getBroadcast(this, 7, intent, 0);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, sensorUploadIntent);
 
+        boolean alarmUp2 = (PendingIntent.getBroadcast(this, 7,
+                new Intent(FinishScreen.this, SensorUploadReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        Log.d(TAG, "startSensorUpload: boolean alarm2 up is: " + alarmUp2);
+
     }
 
     // Pending intent to start logging data - should start the logging every day around the time they wake up
@@ -244,13 +215,6 @@ public class FinishScreen extends AppCompatActivity {
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
-//        int currentHour = cal.get(Calendar.HOUR_OF_DAY);
-//        Log.d(TAG, "stopLogging: current hour: " + currentHour);
-//        if(currentHour > 9 || currentHour < 19){
-//            Log.d(TAG, "stopLogging: skipping stop logging");
-//            return;
-//        }
-
 
         cal.setTimeInMillis(System.currentTimeMillis());
         cal.set(Calendar.HOUR_OF_DAY, 20);
@@ -262,6 +226,24 @@ public class FinishScreen extends AppCompatActivity {
         startLoggingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, startLoggingIntent);
 
+    }
+
+    public void restartApp(){
+
+        Log.d(TAG, "start restart app alarm");
+
+        Calendar cal = Calendar.getInstance();
+        long when = cal.getTimeInMillis();
+
+        cal.setTimeInMillis(System.currentTimeMillis());
+        cal.set(Calendar.HOUR_OF_DAY, 11);
+        cal.set(Calendar.MINUTE, 27);
+        cal.set(Calendar.SECOND, 00);
+
+        AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, RestartApp.class);
+        restartAppIntent = PendingIntent.getBroadcast(this, 22, intent, 0);
+        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, restartAppIntent);
 
     }
 
@@ -294,13 +276,7 @@ public class FinishScreen extends AppCompatActivity {
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
-        int currentHour = cal.get(Calendar.HOUR_OF_DAY);
-        Log.d(TAG, "stopLogging: current hour: " + currentHour);
-        if(currentHour < 9 || currentHour > 19){
-            Log.d(TAG, "stopLogging: skipping stop logging");
-            return;
-        }
-        
+
         Log.d("the time is: ", when + " ");
 
         cal.setTimeInMillis(System.currentTimeMillis());
@@ -312,8 +288,6 @@ public class FinishScreen extends AppCompatActivity {
         Intent intent = new Intent(this, StopLogging.class);
         stopLoggingIntent = PendingIntent.getBroadcast(this, 2, intent, 0);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, stopLoggingIntent);
-
-
     }
 
 
@@ -333,9 +307,21 @@ public class FinishScreen extends AppCompatActivity {
     public void startNudgeAlarm() {
         Log.d(TAG, "startNudgeAlarm: in start alarm");
 
+
+        boolean alarmUp = (PendingIntent.getBroadcast(this, 3,
+                new Intent(FinishScreen.this, DecisionPointAlarmReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        Log.d(TAG, "startNudgeAlarm: boolean alarm up is: " + alarmUp);
+
+        if(alarmUp){
+            return;
+        }
+
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
         Log.d("the time is: ", when + " ");
+
 
         cal.setTimeInMillis(System.currentTimeMillis());
         cal.set(Calendar.HOUR_OF_DAY, 12);
@@ -348,6 +334,13 @@ public class FinishScreen extends AppCompatActivity {
         Intent intent = new Intent(this, DecisionPointAlarmReceiver.class);
         decisionPointIntent = PendingIntent.getBroadcast(this, 3, intent, 0);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, decisionPointIntent);
+
+        boolean alarmUp2 = (PendingIntent.getBroadcast(this, 3,
+                new Intent(FinishScreen.this, DecisionPointAlarmReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        Log.d(TAG, "startNudge: boolean alarm2 up is: " + alarmUp2);
+
     }
 
 
@@ -356,6 +349,16 @@ public class FinishScreen extends AppCompatActivity {
     public void qualtrixNotiWeek(int time){
 
         Log.d(TAG, "qualtrixNotiWeek: ");
+
+        boolean alarmUp = (PendingIntent.getBroadcast(this, 4,
+                new Intent(FinishScreen.this, QualtrixNotiOneReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        Log.d(TAG, "qualtrix one: boolean alarm up is: " + alarmUp);
+
+        if(alarmUp){
+            return;
+        }
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
@@ -380,12 +383,30 @@ public class FinishScreen extends AppCompatActivity {
         Intent intent = new Intent(this, QualtrixNotiOneReceiver.class);
         qualtrixNotiOne = PendingIntent.getBroadcast(this, 4, intent, 0);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY, qualtrixNotiOne);
+
+        boolean alarmUp2 = (PendingIntent.getBroadcast(this, 4,
+                new Intent(FinishScreen.this, QualtrixNotiOneReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        Log.d(TAG, "qualtrix one: boolean alarm 2 up is: " + alarmUp2);
+
+
     }
 
 
     public void qualtrixNotiWeekend(int time){
 
         Log.d(TAG, "qualtrixNotiWeekend: ");
+        boolean alarmUp = (PendingIntent.getBroadcast(this, 5,
+                new Intent(FinishScreen.this, QualtrixNotiTwoReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        Log.d(TAG, "squaltrix two: boolean alarm up is: " + alarmUp);
+
+        if(alarmUp){
+            return;
+        }
+
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
         Log.d("the time is: ", when + " ");
@@ -397,33 +418,66 @@ public class FinishScreen extends AppCompatActivity {
         Intent intent = new Intent(this, QualtrixNotiTwoReceiver.class);
         qualtrixNotiTwo = PendingIntent.getBroadcast(this, 5, intent, 0);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY, qualtrixNotiTwo);
+
+        boolean alarmUp2 = (PendingIntent.getBroadcast(this, 5,
+                new Intent(FinishScreen.this, QualtrixNotiTwoReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        Log.d(TAG, "squaltrix two: boolean alarm 2 up is: " + alarmUp2);
+
+
     }
 
-    public void educationNotification(){
+    public void educationNotification(int doy){
 
         Log.d(TAG, "starting edu alarm: ");
+
+        boolean alarmUp = (PendingIntent.getBroadcast(this, 6,
+                new Intent(FinishScreen.this, EducationNotificationReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        Log.d(TAG, "Educations: boolean alarm up is: " + alarmUp);
+
+        if(alarmUp){
+            return;
+        }
 
         Calendar cal = Calendar.getInstance();
         long when = cal.getTimeInMillis();
         Log.d("the time is: ", when + " ");
         //cal.setTimeInMillis(System.currentTimeMillis());
-        int day = cal.get(Calendar.DAY_OF_WEEK);
-        cal.set(Calendar.DAY_OF_WEEK, day);
+//        int day = cal.get(Calendar.DAY_OF_WEEK);
+//        cal.set(Calendar.DAY_OF_WEEK, day);
+//        cal.set(Calendar.HOUR_OF_DAY,18);
+//        cal.set(Calendar.MINUTE, 30);
+//        cal.set(Calendar.SECOND, 00);
+
+
+        cal.set(Calendar.DAY_OF_YEAR, doy);
         cal.set(Calendar.HOUR_OF_DAY,18);
         cal.set(Calendar.MINUTE, 30);
         cal.set(Calendar.SECOND, 00);
+
+
         long calSet = cal.getTimeInMillis();
-        Log.d(TAG, "educationNotification: day of week is: " + day);
+        Log.d(TAG, "educationNotification: day of year is: " + doy);
         Log.d(TAG, "educationNotification: calset is: " + calSet);
-        long oneDay = AlarmManager.INTERVAL_DAY;
-        int noOfDays = 5;
-        Log.d(TAG, "educationNotification: + oneDay * numberof Days: " + oneDay*noOfDays);
-        long reminderTime = calSet + (noOfDays * oneDay);
-        Log.d(TAG, "educationNotification: cal is : " + reminderTime);
+        //long oneDay = AlarmManager.INTERVAL_DAY;
+        //int noOfDays = 5;
+       // Log.d(TAG, "educationNotification: + oneDay * numberof Days: " + oneDay*noOfDays);
+        ///long reminderTime = calSet + (noOfDays * oneDay);
+        ///Log.d(TAG, "educationNotification: cal is : " + reminderTime);
         AlarmManager alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, EducationNotificationReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 6, intent, 0);
-        alarmMgr.set(AlarmManager.RTC_WAKEUP, reminderTime, pendingIntent);
+//        alarmMgr.set(AlarmManager.RTC_WAKEUP, reminderTime, pendingIntent);
+        alarmMgr.set(AlarmManager.RTC_WAKEUP, calSet, pendingIntent);
+
+        boolean alarmUp2 = (PendingIntent.getBroadcast(this, 6,
+                new Intent(FinishScreen.this, EducationNotificationReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        Log.d(TAG, "Educations: boolean alarm 2 up is: " + alarmUp2);
 
     }
 
@@ -435,13 +489,13 @@ public class FinishScreen extends AppCompatActivity {
 
 
 
-    public int calculateEduLinkDay(int dow){
+    public int calculateEduLinkDay(int doy){
 
         int i;
-        if(dow <= 6){
-            i = dow +1;
+        if(doy <= 359){
+            i = doy +5;
         }else{
-            i = (dow + 1) - 1;
+            i = (doy - 365) + 5;
         }
         Log.d(TAG, "calculateEduLinkDay: so calculated dow is: " + i);
 
@@ -460,5 +514,10 @@ public class FinishScreen extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
+        Log.d(TAG, "onDestroy: on destory called");
+    }
 }

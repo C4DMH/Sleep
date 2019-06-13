@@ -7,9 +7,11 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -26,6 +28,7 @@ public class EducationNotificationReceiver extends BroadcastReceiver {
     private NotificationManager mNotificationManager;
     Uri uri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
     String CHANNEL_DI = "EduLink";
+    SharedPreferences mSharedPreferences;
 
 
 
@@ -34,6 +37,24 @@ public class EducationNotificationReceiver extends BroadcastReceiver {
 
         Log.d(TAG, "onReceive: edu receiver, why am i here?");
         mContext = context;
+
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        boolean startedBefore = mSharedPreferences.getBoolean("EduLinkDone",false);
+
+        Log.d(TAG, "onCreate: started before finish : " + startedBefore);
+
+        if(startedBefore){
+            Log.d(TAG, "onCreate: skipping");
+            return;
+        }
+
+
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean("EduLinkDone", true);
+        editor.apply();
+
+
+
 
         if(mNotificationManager == null){
             Log.d(TAG, "onReceive: in notification manager = null");
@@ -62,9 +83,9 @@ public class EducationNotificationReceiver extends BroadcastReceiver {
         Notification mBuilder =
                 new NotificationCompat.Builder(context, CHANNEL_DI)
                         .setSmallIcon(R.drawable.noti_icon)
-                        .setContentTitle("Qualtrix Survey")
+                        .setContentTitle("Education Notification")
                         .setAutoCancel(true)
-                        .setContentText("Please click this to complete Qualtrix Notification")
+                        .setContentText("Please click this to complete Qualtrix Education")
                         .setOngoing(true)
                         .setChannelId(CHANNEL_DI)
                         .setSound(uri)

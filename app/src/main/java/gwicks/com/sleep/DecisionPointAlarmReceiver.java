@@ -59,7 +59,7 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
 
         //172800000 = 2 days
         // 585200000 previeus
-
+//
         if(millis - timeSinceInstall < 585200000 ){
             Log.d(TAG, "onReceive: millis - timesniceinstall: " +(millis - timeSinceInstall) );
             return;

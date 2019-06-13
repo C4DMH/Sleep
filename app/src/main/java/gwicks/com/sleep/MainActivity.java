@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -117,9 +118,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        Calendar cal = Calendar.getInstance();
+        int doy = cal.get(Calendar.DAY_OF_YEAR);
 
         Date date = new Date(System.currentTimeMillis());
         long millis = date.getTime();
+
 
         Log.d(TAG, "buttonClick: current time is: " + millis);
 
@@ -144,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
         editor.putBoolean("NudgesStarted", false);
         editor.putLong("InstallTime", millis);
+        editor.putInt("doy", doy);
 
 
         String morningWeek = morningSpinnerWeek.getSelectedItem().toString();
@@ -172,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
         writeToFile(sleepFile, morningWeekInt + "," + nightWeekInt + "," + morningWeekendInt +"," + nightWeekendInt + "\n");
         Util.uploadFileToBucket(sleepFile,"input.txt",false,logUploadCallback, "/Input/");
         Intent finishIntent = new Intent(MainActivity.this, FinishScreen.class);
+        finishIntent.putExtra("message", "Thanks, you're done\nPress either Back or Home to exit");
         MainActivity.this.startActivity(finishIntent);
 
         //TODO Need to strip out all the recurring log.d writes, as a debug build will keep them!!!!!

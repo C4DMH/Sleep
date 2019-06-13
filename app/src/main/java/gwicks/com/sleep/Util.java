@@ -130,7 +130,9 @@ public class Util {
 //
 //            sTransferUtility = TransferUtility.builder()
 //                    .context(context.getApplicationContext())
-//                    .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
+//                    .s3Client(getS3Client(context.getApplicationContext()))
+//                    .defaultBucket(Constants.BUCKET_NAME)
+//                    .build();
             sTransferUtility = new TransferUtility(getS3Client(context.getApplicationContext()),
                     context.getApplicationContext());
         }
@@ -364,6 +366,7 @@ public class Util {
 
             @Override
             public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                Log.d(TAG, "Progress: bytesCurrent = " + bytesCurrent + "; bytesTotal = " + bytesTotal);
             }
 
             @SuppressLint("DefaultLocale")
