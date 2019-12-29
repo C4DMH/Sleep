@@ -2,12 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="gwicks.com.sleep">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
+
     <uses-permission
         android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 
@@ -20,7 +24,7 @@
         android:supportsRtl="true"
         android:persistent="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity android:name=".Intro"
                   android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -30,6 +34,19 @@
         </activity>
         <activity android:name=".FinishScreen"
                   android:screenOrientation="portrait">
+        </activity>
+
+        <activity
+            android:name=".SetupStepTwo"
+            android:screenOrientation="portrait">
+
+        </activity>
+
+        <activity
+            android:name=".StudyCodeVerification"
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait">
+
         </activity>
 
         <receiver android:name=".PowerConnectionReceiver">

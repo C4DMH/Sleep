@@ -3,11 +3,8 @@ package gwicks.com.sleep;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
-
-;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -18,8 +15,6 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,6 +22,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+;
 
 /**
  * Created by gwicks on 9/07/2018.
@@ -54,7 +51,7 @@ public class Util {
     private static CognitoCachingCredentialsProvider sCredProvider;
     private static TransferUtility sTransferUtility;
     private static String userId;
-    //Context mContext = MainActivity.getIntance();
+    //Context mContext = SetupStepTwo.getIntance();
 
     /**
      * Gets an instance of CognitoCachingCredentialsProvider which is
@@ -265,21 +262,6 @@ public class Util {
                         break;
                     case COMPLETED:
 
-                        long unixTime = System.currentTimeMillis() / 1000L;
-                        String desination = context.getExternalFilesDir(null) + "/videoDIARY/buffered_" + unixTime + ".log";
-                        Log.d(TAG, "onStateChanged: the destination is: " + desination);
-
-
-                        File destination = new File(desination);
-                        try {
-                            FileUtils.copyFile(file, destination);
-                            Log.d("LogUploadTask", "Copyting file to VideoDIARY");
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-
                         Log.d(TAG, String.format("Transfer ID %d has completed", id));
                         callback.onComplete(id, state);
                         if (deleteAfter) {
@@ -316,6 +298,9 @@ public class Util {
         initUserId();
         Log.d("Log", "This is in AWSUTIL upload file to bucket");
         final String filePath = String.format("%s%s", userId + folder, filename);
+        Log.d(TAG, "uploadFileToBucket: the file path is: " + filePath);
+        Log.d(TAG, "uploadFileToBucket: folder is: " + folder);
+        Log.d(TAG, "uploadFileToBucket: aws bucket is: " + Constants.awsBucket);
         final TransferObserver observer =
                 //transferUtility.upload(BuildConfig.AWS_BUCKET_NAME, filePath, file);
                 sTransferUtility.upload(Constants.BUCKET_NAME, filePath, file);
@@ -332,20 +317,6 @@ public class Util {
                         callback.onStart(id, state);
                         break;
                     case COMPLETED:
-
-                        long unixTime = System.currentTimeMillis() / 1000L;
-                        String desination = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Sleep/"+ filename + unixTime + ".copy";
-
-
-                        File destination = new File(desination);
-                        try {
-                            FileUtils.copyFile(file, destination);
-                            Log.d("LogUploadTask", "Copyting file to VideoDIARY");
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
 
                         Log.d(TAG, String.format("Transfer ID %d has completed", id));
                         callback.onComplete(id, state);

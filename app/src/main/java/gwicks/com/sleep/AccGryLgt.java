@@ -16,13 +16,14 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+
+import androidx.core.app.NotificationCompat;
 
 /**
  * Created by gwicks on 9/07/2018.
@@ -155,6 +156,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
                     new NotificationCompat.Builder(this, CHANNEL_DI)
                             .setSmallIcon(R.drawable.not_icon_clear)
                             .setAutoCancel(true)
+                            .setContentTitle("SLEEP")
                             .setContentText("Sleep app is running")
                             .setOngoing(false)
                             .setChannelId(CHANNEL_DI)
@@ -291,7 +293,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
             LAST_TS_ACC = System.currentTimeMillis();
 
             accelBuffer.append(LAST_TS_ACC + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
-            Log.d(TAG, "onSensorChanged: \n the acc buffer length is: " + accelBuffer.length());
+            //Log.d(TAG, "onSensorChanged: \n the acc buffer length is: " + accelBuffer.length());
             //Log.d(TAG, "onSensorChanged: the buffer is: " + accelBuffer.toString());
             if((accelBuffer.length() > 500000) && (writingAccelToFile == false) ){
                 writingAccelToFile = true;
@@ -346,7 +348,7 @@ public class AccGryLgt extends Service implements SensorEventListener {
 
 
             gryoBuffer.append(LAST_TS_GYRO + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
-            Log.d(TAG, "onSensorChanged: \n the gryo buffer length is: " + gryoBuffer.length());
+            //Log.d(TAG, "onSensorChanged: \n the gryo buffer length is: " + gryoBuffer.length());
             //Log.d(TAG, "onSensorChanged: the buffer is: " + accelBuffer.toString());
             //Log.d(TAG, "onSensorChanged: wrtringgryotofile = " + writingGyroToFile);
             if((gryoBuffer.length() > 500000) && (writingGyroToFile == false) ){

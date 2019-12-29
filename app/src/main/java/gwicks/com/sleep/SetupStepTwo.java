@@ -7,11 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -27,6 +23,10 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 /**
  * Created by gwicks on 20/09/2018.
  *
@@ -34,7 +34,7 @@ import java.util.Date;
  * and sleep times, stores in shared preferences.
  */
 
-public class MainActivity extends AppCompatActivity {
+public class SetupStepTwo extends AppCompatActivity {
 
     Spinner morningSpinnerWeek;
     Spinner morningSpinnerWeekend;
@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences prefs;
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "SetupStepTwo";
     public static final int REQUEST_WRITE_STORAGE_REQUEST_CODE = 101;
     TransferUtility mTransferUtility;
 
@@ -56,15 +56,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        requestAppPermissions();
+        //requestAppPermissions();
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean startedBefore = prefs.getBoolean("Finish",false);
         Log.d(TAG, "onCreate: started before : " + startedBefore);
         if(startedBefore){
             Log.d(TAG, "onCreate: skipping");
-            Intent finishIntent = new Intent(MainActivity.this, FinishScreen.class);
-            MainActivity.this.startActivity(finishIntent);
+            Intent finishIntent = new Intent(SetupStepTwo.this, FinishScreen.class);
+            SetupStepTwo.this.startActivity(finishIntent);
 
         }
 
@@ -138,12 +138,14 @@ public class MainActivity extends AppCompatActivity {
             directory.mkdirs();
         }
 
-        String desination = Environment.getExternalStorageDirectory().getAbsolutePath() + "/sleep/";
-        File destination = new File(desination);
+        //TODO this should be removed, not sure why the file is writing the data
 
-        if(!destination.exists()){
-            destination.mkdirs();
-        }
+//        String desination = Environment.getExternalStorageDirectory().getAbsolutePath() + "/sleep/";
+//        File destination = new File(desination);
+//
+//        if(!destination.exists()){
+//            destination.mkdirs();
+//        }
 
 
         editor.putBoolean("NudgesStarted", false);
@@ -176,9 +178,9 @@ public class MainActivity extends AppCompatActivity {
         writeToFile(sleepFile, model + "\n");
         writeToFile(sleepFile, morningWeekInt + "," + nightWeekInt + "," + morningWeekendInt +"," + nightWeekendInt + "\n");
         Util.uploadFileToBucket(sleepFile,"input.txt",false,logUploadCallback, "/Input/");
-        Intent finishIntent = new Intent(MainActivity.this, FinishScreen.class);
+        Intent finishIntent = new Intent(SetupStepTwo.this, FinishScreen.class);
         finishIntent.putExtra("message", "Thanks, you're done\nPress either Back or Home to exit");
-        MainActivity.this.startActivity(finishIntent);
+        SetupStepTwo.this.startActivity(finishIntent);
 
         //TODO Need to strip out all the recurring log.d writes, as a debug build will keep them!!!!!
 

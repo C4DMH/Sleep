@@ -12,10 +12,11 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.util.Calendar;
+
+import androidx.core.app.NotificationCompat;
 
 /**
  * Created by gwicks on 24/09/2018.

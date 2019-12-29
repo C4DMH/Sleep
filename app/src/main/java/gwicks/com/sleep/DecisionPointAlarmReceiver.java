@@ -62,6 +62,16 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
 //
         if(millis - timeSinceInstall < 585200000 ){
             Log.d(TAG, "onReceive: millis - timesniceinstall: " +(millis - timeSinceInstall) );
+            Log.d(TAG, "onReceive: skipping first week");
+            //return;
+        }
+
+        if(millis - timeSinceInstall > 1210000000  ){
+            Log.d(TAG, "onReceive: millis - timesniceinstall: " +(millis - timeSinceInstall) );
+            Log.d(TAG, "onReceive:  skipping last week");
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            editor.putBoolean("NudgesStarted", false);
+            editor.apply();
             return;
         }
 
@@ -127,7 +137,7 @@ public class DecisionPointAlarmReceiver extends BroadcastReceiver {
         int delay;
 
 
-        if(Math.random() < 0.1){ // No nudge given
+        if(Math.random() < 0.25){ // No nudge given
             Log.d(TAG, "onReceive: skipping the nudge");
             writeToFile(nudgetext,currentDate + ", No Nudge given on this date\n" );
 
