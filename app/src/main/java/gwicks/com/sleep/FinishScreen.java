@@ -1,7 +1,6 @@
 package gwicks.com.sleep;
 
 import android.app.AlarmManager;
-import android.app.DialogFragment;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,12 +12,13 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
 
 import java.util.Calendar;
 import java.util.TimeZone;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Created by gwicks on 20/09/2018.
@@ -160,7 +160,7 @@ public class FinishScreen extends AppCompatActivity {
             return;
         }
 
-        launchSendEmailDialog();
+        //launchSendEmailDialog();
 
         editor.putBoolean("Finish", true);
         editor.apply();
@@ -210,6 +210,8 @@ public class FinishScreen extends AppCompatActivity {
     // Pending intent to start logging data - should start the logging every day around the time they wake up
 
     public void startLogging(){
+
+        //TODO if installed after this time, it does not actually start the alarm? Actually yes it does, it just took a few minutes
 
         Log.d(TAG, "start Logging alarm");
 
@@ -502,12 +504,12 @@ public class FinishScreen extends AppCompatActivity {
         return i;
     }
 
-    public void launchSendEmailDialog(){
-        DialogFragment newFragment = new EmailSecureDeviceID();
-        newFragment.setCancelable(false);
-
-        newFragment.show(getFragmentManager(), "email");
-    }
+//    public void launchSendEmailDialog(){
+//        DialogFragment newFragment = new EmailSecureDeviceID();
+//        newFragment.setCancelable(false);
+//
+//        newFragment.show(getFragmentManager(), "email");
+//    }
 
     @Override
     public void onBackPressed() {
